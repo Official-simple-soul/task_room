@@ -5,6 +5,8 @@ import { login, register } from '@/app/actions/auth';
 import { buttonClass, cn, inputClass, labelClass } from '@/lib/styles';
 
 type Mode = 'login' | 'register';
+const showDevCredentials =
+  process.env.NEXT_PUBLIC_SHOW_DEV_CREDENTIALS === 'true';
 
 export function AuthForm() {
   const [mode, setMode] = useState<Mode>('login');
@@ -107,13 +109,15 @@ export function AuthForm() {
           </button>
         </form>
       )}
-      <p className="mt-7 border-t border-[#e2e8e3] pt-[1.4rem] text-[0.85rem] leading-[1.8] text-[#68766e]">
-        Local admin: <strong>admin@taskroom.local</strong> /{' '}
-        <strong>Admin123!</strong>
-        <br />
-        Local user: <strong>user@taskroom.local</strong> /{' '}
-        <strong>User123!</strong>
-      </p>
+      {showDevCredentials && (
+        <p className="mt-7 border-t border-[#e2e8e3] pt-[1.4rem] text-[0.85rem] leading-[1.8] text-[#68766e]">
+          Local admin: <strong>admin@taskroom.local</strong> /{' '}
+          <strong>Admin123!</strong>
+          <br />
+          Local user: <strong>user@taskroom.local</strong> /{' '}
+          <strong>User123!</strong>
+        </p>
+      )}
     </div>
   );
 }
