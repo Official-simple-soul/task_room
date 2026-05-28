@@ -39,3 +39,14 @@ export type MonthlyMetric = {
   available_reworks: number;
   earned_cents: number;
 };
+
+export type LeaderboardPeriod = "day" | "week" | "month";
+
+export type LeaderboardEntry = {
+  rank: number;
+  worker_alias: string;
+  completed_count: number;
+  approved_count: number;
+  earned_cents: number;
+  is_current_user: boolean;
+};

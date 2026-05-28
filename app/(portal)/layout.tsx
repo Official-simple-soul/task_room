@@ -1,6 +1,7 @@
 import { logout } from '@/app/actions/auth';
 import { UserIcon } from '@/components/icons';
 import { PortalNav } from '@/components/portal-nav';
+import { RealtimeRefresh } from '@/components/realtime-refresh';
 import { requireProfile } from '@/lib/auth';
 import { brandClass, textButtonClass } from '@/lib/styles';
 import Link from 'next/link';
@@ -15,6 +16,7 @@ export default async function PortalLayout({
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
+      <RealtimeRefresh />
       <aside className="border-r border-[#e2e8e3] bg-white px-[1.5rem] py-[1.3rem] lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:px-[1.4rem] lg:py-8">
         <Link href="/dashboard" className={brandClass}>
           TaskRoom

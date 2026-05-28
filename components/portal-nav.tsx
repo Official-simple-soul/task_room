@@ -7,6 +7,7 @@ import {
   ClipboardIcon,
   DashboardIcon,
   SettingsIcon,
+  TrophyIcon,
   UsersIcon,
   WalletIcon,
 } from './icons';
@@ -26,6 +27,7 @@ export function PortalNav({ isAdmin }: PortalNavProps) {
 
   const links: NavLink[] = [
     { href: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
+    { href: '/leaderboard', label: 'Leaderboard', icon: TrophyIcon },
     ...(isAdmin
       ? [
           { href: '/users', label: 'Users', icon: UsersIcon },

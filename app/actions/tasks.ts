@@ -42,6 +42,7 @@ export async function completeTask(taskId: string) {
   if (error) notice('/tasks', error.message, true);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');
+  revalidatePath('/leaderboard');
   notice('/tasks', 'Task submitted for admin review.');
 }
 
@@ -105,6 +106,8 @@ export async function startReview(taskId: string, userId: string) {
     .eq('id', taskId);
   if (error) notice(`/users/${userId}`, error.message, true);
   revalidatePath(`/users/${userId}`);
+  revalidatePath('/tasks');
+  revalidatePath('/dashboard');
   notice(`/users/${userId}`, 'Task is now under review.');
 }
 
@@ -132,6 +135,9 @@ export async function decideTask(
     .eq('id', taskId);
   if (error) notice(`/users/${userId}`, error.message, true);
   revalidatePath(`/users/${userId}`);
+  revalidatePath('/tasks');
+  revalidatePath('/dashboard');
+  revalidatePath('/leaderboard');
   revalidatePath('/payments');
   notice(`/users/${userId}`, `Task marked ${status.replace('_', ' ')}.`);
 }

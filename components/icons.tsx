@@ -168,3 +168,26 @@ export function SettingsIcon(props: IconProps) {
     </SvgIcon>
   );
 }
+
+export function TrophyIcon(props: IconProps) {
+  return (
+    <SvgIcon {...props}>
+      <path d="M8 21h8" />
+      <path d="M12 17v4" />
+      <path d="M7 4h10v5a5 5 0 0 1-10 0V4Z" />
+      <path d="M7 7H4a3 3 0 0 0 3 3" />
+      <path d="M17 7h3a3 3 0 0 1-3 3" />
+    </SvgIcon>
+  );
+}
+
+export function MedalIcon(props: IconProps) {
+  return (
+    <SvgIcon {...props}>
+      <path d="m8 2 4 7 4-7" />
+      <path d="M8.5 2h7" />
+      <circle cx="12" cy="15" r="6" />
+      <path d="m10.5 15 1 1 2.5-3" />
+    </SvgIcon>
+  );
+}
