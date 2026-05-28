@@ -10,9 +10,9 @@ export const metadata: Metadata = {
     'TaskRoom helps teams assign coding tasks, manage review workflows, track rework, and calculate approved user earnings.',
   applicationName: 'TaskRoom',
   icons: {
-    icon: '/task-room-logo.png',
-    shortcut: '/task-room-logo.png',
-    apple: '/task-room-logo.png',
+    icon: '/task-room2.png',
+    shortcut: '/task-room2.png',
+    apple: '/task-room2.png',
   },
 };
 
