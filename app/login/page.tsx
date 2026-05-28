@@ -1,14 +1,7 @@
 import { AuthForm } from "@/components/auth-form";
-import { Message } from "@/components/message";
 import { brandClass } from "@/lib/styles";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string }>;
-}) {
-  const { error } = await searchParams;
-
+export default function LoginPage() {
   return (
     <main className="mx-auto grid min-h-screen max-w-[1140px] items-center gap-[clamp(3rem,10vw,9rem)] px-8 py-12 lg:grid-cols-[minmax(340px,1fr)_minmax(380px,480px)]">
       <section className="mb-10 lg:mb-0">
@@ -22,7 +15,6 @@ export default async function LoginPage({
         </p>
       </section>
       <section className="grid gap-4">
-        <Message error={error} />
         <AuthForm />
       </section>
     </main>

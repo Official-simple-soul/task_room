@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { login, register } from '@/app/actions/auth';
+import { useActionState, useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { login, register, type AuthFormState } from '@/app/actions/auth';
 import { buttonClass, cn, inputClass, labelClass } from '@/lib/styles';
 
 type Mode = 'login' | 'register';
@@ -10,6 +11,14 @@ const showDevCredentials =
 
 export function AuthForm() {
   const [mode, setMode] = useState<Mode>('login');
+  const [loginState, loginAction] = useActionState<AuthFormState, FormData>(
+    login,
+    {},
+  );
+  const [registerState, registerAction] = useActionState<AuthFormState, FormData>(
+    register,
+    {},
+  );
 
   return (
     <div className="rounded-[18px] border border-[#e2e8e3] bg-white p-[2.2rem] shadow-[0_14px_42px_rgb(22_34_29_/_6%)]">
@@ -47,7 +56,7 @@ export function AuthForm() {
       </div>
       {mode === 'login' ? (
         <form
-          action={login}
+          action={loginAction}
           className="grid gap-[1.3rem]"
           aria-label="Sign in"
           id="login-panel"
@@ -67,13 +76,12 @@ export function AuthForm() {
               autoComplete="current-password"
             />
           </label>
-          <button className={`${buttonClass} mt-2.5 w-full`} type="submit">
-            Sign in
-          </button>
+          <AuthError message={loginState.error} />
+          <SubmitButton label="Sign in" pendingLabel="Signing in..." />
         </form>
       ) : (
         <form
-          action={register}
+          action={registerAction}
           className="grid gap-[1.3rem]"
           aria-label="Create account"
           id="register-panel"
@@ -104,9 +112,8 @@ export function AuthForm() {
               autoComplete="new-password"
             />
           </label>
-          <button className={`${buttonClass} mt-2.5 w-full`} type="submit">
-            Create worker account
-          </button>
+          <AuthError message={registerState.error} />
+          <SubmitButton label="Create worker account" pendingLabel="Creating account..." />
         </form>
       )}
       {showDevCredentials && (
@@ -119,5 +126,51 @@ export function AuthForm() {
         </p>
       )}
     </div>
+  );
+}
+
+function AuthError({ message }: { message?: string }) {
+  if (!message) return null;
+
+  return (
+    <p
+      className="rounded-[10px] bg-[#fde9e9] px-4 py-3 text-[0.9rem] font-medium text-[#ae3939]"
+      role="alert"
+      aria-live="polite"
+    >
+      {message}
+    </p>
+  );
+}
+
+function SubmitButton({
+  label,
+  pendingLabel,
+}: {
+  label: string;
+  pendingLabel: string;
+}) {
+  const { pending } = useFormStatus();
+
+  return (
+    <button
+      className={cn(
+        buttonClass,
+        'mt-2.5 w-full',
+        pending && 'cursor-not-allowed opacity-70 hover:translate-y-0 hover:bg-[#11664b]',
+      )}
+      type="submit"
+      disabled={pending}
+      aria-disabled={pending}
+    >
+      {pending ? (
+        <span className="inline-flex items-center gap-2">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+          {pendingLabel}
+        </span>
+      ) : (
+        label
+      )}
+    </button>
   );
 }
