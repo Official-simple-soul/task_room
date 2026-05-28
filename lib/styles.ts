@@ -30,21 +30,22 @@ export const eyebrowClass =
   'mb-[0.55rem] text-[0.76rem] font-[650] uppercase tracking-[0.13em] text-[#11664b]';
 
 export const pageTitleClass =
-  'mb-[0.55rem] text-[clamp(2rem,4vw,2.5rem)] tracking-[-0.055em] text-[#16221d]';
+  'mb-[0.55rem] text-[clamp(2rem,4vw,2.5rem)] tracking-[-0.055em] text-[#16221d] font-semibold';
 
-export const pageSubtitleClass = 'm-0 max-w-[650px] leading-[1.6] text-[#68766e]';
+export const pageSubtitleClass =
+  'm-0 max-w-[650px] leading-[1.6] text-[#68766e]';
 
 export const tableClass = 'w-full border-collapse text-left text-[0.91rem]';
 
 export const thClass =
   'border-b border-[#edf1ee] px-2.5 py-[0.85rem] text-[0.75rem] font-semibold uppercase tracking-[0.06em] text-[#68766e] first:pl-0';
 
-export const tdClass = 'border-b border-[#edf1ee] px-2.5 py-[0.85rem] first:pl-0';
+export const tdClass =
+  'border-b border-[#edf1ee] px-2.5 py-[0.85rem] first:pl-0';
 
 export const emptyClass = 'py-3 text-[0.92rem] text-[#68766e]';
 
-export const fieldGridClass =
-  'grid grid-cols-1 items-end gap-4 md:grid-cols-3';
+export const fieldGridClass = 'grid grid-cols-1 items-end gap-4 md:grid-cols-3';
 
 export const paymentGridClass =
   'grid grid-cols-1 items-end gap-4 lg:grid-cols-4';
@@ -56,7 +57,7 @@ export const taskCardClass =
   'rounded-[22px] bg-[linear-gradient(180deg,#ffffff_0%,#f6fbf6_100%)] p-[1.8rem] shadow-[0_18px_44px_rgba(22,34,29,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_54px_rgba(22,34,29,0.11)]';
 
 export const taskTitleClass =
-  'grid grid-cols-[1fr_auto] items-start gap-[0.85rem]';
+  'grid grid-cols-[auto_1fr_auto] items-start gap-[0.85rem]';
 
 export const taskPromptClass =
   'my-[1.15rem] rounded-2xl bg-[#f8fbf7] p-[1rem_1.1rem] text-[0.95rem] leading-[1.7] text-[#394a40]';
@@ -73,8 +74,7 @@ export const hiddenUrlClass =
 export const commentClass =
   'my-4 mb-[0.9rem] grid gap-1.5 border-l-4 border-[#a56308] bg-[#fff3df] px-4 py-[0.9rem] text-[0.92rem] text-[#5e4826]';
 
-export const actionsClass =
-  'mt-5 flex flex-wrap justify-start gap-[0.85rem]';
+export const actionsClass = 'mt-5 flex flex-wrap justify-start gap-[0.85rem]';
 
 export const statusBorderClass: Record<string, string> = {
   pending: 'border-l-[5px] border-l-[#f6b93e]',

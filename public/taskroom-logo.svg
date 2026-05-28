@@ -1,0 +1,10 @@
+<svg width="220" height="64" viewBox="0 0 220 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">TaskRoom</title>
+  <desc id="desc">TaskRoom logo with a checked task card mark.</desc>
+  <rect width="64" height="64" rx="18" fill="#11664B"/>
+  <path d="M19 20.5C19 17.4624 21.4624 15 24.5 15H43.5C46.5376 15 49 17.4624 49 20.5V43.5C49 46.5376 46.5376 49 43.5 49H24.5C21.4624 49 19 46.5376 19 43.5V20.5Z" fill="white" fill-opacity="0.96"/>
+  <path d="M26 24H42" stroke="#11664B" stroke-width="3" stroke-linecap="round"/>
+  <path d="M26 32H38" stroke="#11664B" stroke-width="3" stroke-linecap="round" opacity="0.72"/>
+  <path d="M26 40L30.25 44.25L40.5 34" stroke="#11664B" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="80" y="42" fill="#16221D" font-family="Inter, Avenir Next, Segoe UI, Arial, sans-serif" font-size="30" font-weight="800" letter-spacing="-1.5">TaskRoom</text>
+</svg>

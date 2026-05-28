@@ -11,6 +11,8 @@ const showDevCredentials =
 
 export function AuthForm() {
   const [mode, setMode] = useState<Mode>('login');
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [loginState, loginAction] = useActionState<AuthFormState, FormData>(
     login,
     {},
@@ -68,12 +70,11 @@ export function AuthForm() {
           </label>
           <label className={labelClass}>
             Password
-            <input
-              className={inputClass}
+            <PasswordInput
               name="password"
-              type="password"
-              required
               autoComplete="current-password"
+              visible={showLoginPassword}
+              onToggle={() => setShowLoginPassword((value) => !value)}
             />
           </label>
           <AuthError message={loginState.error} />
@@ -103,13 +104,12 @@ export function AuthForm() {
           </label>
           <label className={labelClass}>
             Password
-            <input
-              className={inputClass}
+            <PasswordInput
               name="password"
-              type="password"
-              required
-              minLength={8}
               autoComplete="new-password"
+              minLength={8}
+              visible={showRegisterPassword}
+              onToggle={() => setShowRegisterPassword((value) => !value)}
             />
           </label>
           <AuthError message={registerState.error} />
@@ -125,6 +125,42 @@ export function AuthForm() {
           <strong>User123!</strong>
         </p>
       )}
+    </div>
+  );
+}
+
+function PasswordInput({
+  name,
+  autoComplete,
+  minLength,
+  visible,
+  onToggle,
+}: {
+  name: string;
+  autoComplete: string;
+  minLength?: number;
+  visible: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="relative">
+      <input
+        className={`${inputClass} pr-20`}
+        name={name}
+        type={visible ? 'text' : 'password'}
+        required
+        minLength={minLength}
+        autoComplete={autoComplete}
+      />
+      <button
+        type="button"
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-[0.78rem] font-semibold text-[#11664b] transition hover:bg-[#e7f3ed]"
+        onClick={onToggle}
+        aria-label={visible ? 'Hide password' : 'Show password'}
+        aria-pressed={visible}
+      >
+        {visible ? 'Hide' : 'Show'}
+      </button>
     </div>
   );
 }

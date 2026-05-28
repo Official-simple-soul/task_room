@@ -1,4 +1,5 @@
 import { claimTask, completeTask } from '@/app/actions/tasks';
+import { ArrowRightIcon, ClipboardIcon, PlusIcon } from '@/components/icons';
 import Link from 'next/link';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
@@ -132,15 +133,21 @@ export default async function TasksPage({
         <section className="my-6 flex flex-col gap-5 rounded-[14px] border border-[rgba(17,102,75,0.14)] bg-[linear-gradient(135deg,rgba(231,243,237,0.9)_0%,rgba(255,255,255,0.95)_100%)] p-[1.8rem] shadow-[0_2px_8px_rgba(22,34,29,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className={eyebrowClass}>Task summary</p>
-            <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
-              Task management
-            </h2>
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#11664b] shadow-[0_10px_24px_rgba(17,102,75,0.10)]">
+                <ClipboardIcon className="h-5 w-5" />
+              </span>
+              <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+                Task management
+              </h2>
+            </div>
             <p className="mt-2.5 max-w-[520px] text-[0.95rem] leading-[1.7] text-[#68766e]">
               Create, monitor, and route assignments from one place with a clean
               task overview.
             </p>
           </div>
           <Link href="/tasks/assign" className={buttonClass}>
+            <PlusIcon className="mr-2 h-4 w-4" />
             Assign task
           </Link>
         </section>
@@ -151,6 +158,9 @@ export default async function TasksPage({
               key={task.id}
             >
               <div className={taskTitleClass}>
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e7f3ed] text-[#11664b]">
+                  <ClipboardIcon className="h-6 w-6" />
+                </span>
                 <div className="min-w-0">
                   <h2 className="m-0 text-[1.18rem] tracking-[-0.03em]">
                     {task.external_task_id}
@@ -236,6 +246,9 @@ export default async function TasksPage({
             key={task.id}
           >
             <div className={taskTitleClass}>
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e7f3ed] text-[#11664b]">
+                <ClipboardIcon className="h-6 w-6" />
+              </span>
               <div className="min-w-0">
                 <h2 className="m-0 text-[1.18rem] tracking-[-0.03em]">
                   {task.external_task_id}

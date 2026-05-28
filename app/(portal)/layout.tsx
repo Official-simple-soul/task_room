@@ -1,8 +1,10 @@
-import Link from 'next/link';
 import { logout } from '@/app/actions/auth';
+import { BrandLogo } from '@/components/brand-logo';
+import { UserIcon } from '@/components/icons';
 import { PortalNav } from '@/components/portal-nav';
 import { requireProfile } from '@/lib/auth';
 import { brandClass, textButtonClass } from '@/lib/styles';
+import Link from 'next/link';
 
 export default async function PortalLayout({
   children,
@@ -18,12 +20,18 @@ export default async function PortalLayout({
         <Link href="/dashboard" className={brandClass}>
           TaskRoom
         </Link>
-        <p className="my-4 text-[0.96rem] font-semibold lg:my-0 lg:mb-[1.9rem] lg:mt-[2.7rem]">
-          {profile.full_name || 'Account'}
-          <span className="mt-1 block text-[0.8rem] font-normal text-[#68766e]">
-            {admin ? 'Administrator' : 'Worker'}
+        <div className="my-4 flex items-center gap-3 lg:my-0 lg:mb-[1.9rem] lg:mt-[2.7rem]">
+          <span className="relative flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#11664b,#0a513b)] text-white shadow-[0_10px_24px_rgba(17,102,75,0.22)]">
+            <UserIcon className="size-6" />
+            <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#15b46a]" />
           </span>
-        </p>
+          <p className="m-0 text-[0.86rem] font-semibold">
+            {profile.full_name || 'Account'}
+            <span className="mt-1 block text-[0.8rem] font-normal text-[#68766e]">
+              {admin ? 'Administrator' : 'Worker'}
+            </span>
+          </p>
+        </div>
         <PortalNav isAdmin={admin} />
         <form action={logout} className="mt-2 lg:mt-auto">
           <button className={textButtonClass}>Sign out</button>

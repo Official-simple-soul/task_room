@@ -1,8 +1,15 @@
 import Link from 'next/link';
+import { UsersIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { requireProfile } from '@/lib/auth';
 import { money } from '@/lib/format';
-import { emptyClass, panelClass, tableClass, tdClass, thClass } from '@/lib/styles';
+import {
+  emptyClass,
+  panelClass,
+  tableClass,
+  tdClass,
+  thClass,
+} from '@/lib/styles';
 
 export default async function UsersPage() {
   const { supabase } = await requireProfile('admin');
@@ -23,6 +30,14 @@ export default async function UsersPage() {
         subtitle="Manage worker accounts and review task progress from each user profile."
       />
       <section className={`${panelClass} overflow-x-auto`}>
+        <div className="mb-[1.15rem] flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+            <UsersIcon className="h-5 w-5" />
+          </span>
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+            Worker accounts
+          </h2>
+        </div>
         <table className={tableClass}>
           <thead>
             <tr>
@@ -55,7 +70,10 @@ export default async function UsersPage() {
                     )}
                   </td>
                   <td className={tdClass}>
-                    <Link className="text-[0.9rem] font-semibold text-[#11664b]" href={`/users/${user.id}`}>
+                    <Link
+                      className="text-[0.9rem] font-semibold text-[#11664b]"
+                      href={`/users/${user.id}`}
+                    >
                       Open user
                     </Link>
                   </td>
@@ -64,7 +82,9 @@ export default async function UsersPage() {
             })}
           </tbody>
         </table>
-        {!users?.length && <p className={emptyClass}>No registered users yet.</p>}
+        {!users?.length && (
+          <p className={emptyClass}>No registered users yet.</p>
+        )}
       </section>
     </>
   );
