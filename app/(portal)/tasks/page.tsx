@@ -1,5 +1,5 @@
 import { claimTask, completeTask } from '@/app/actions/tasks';
-import { ArrowRightIcon, ClipboardIcon, PlusIcon } from '@/components/icons';
+import { ClipboardIcon, PlusIcon } from '@/components/icons';
 import Link from 'next/link';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';

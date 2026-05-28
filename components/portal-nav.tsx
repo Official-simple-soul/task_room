@@ -6,6 +6,7 @@ import { cn } from '@/lib/styles';
 import {
   ClipboardIcon,
   DashboardIcon,
+  SettingsIcon,
   UsersIcon,
   WalletIcon,
 } from './icons';
@@ -30,10 +31,12 @@ export function PortalNav({ isAdmin }: PortalNavProps) {
           { href: '/users', label: 'Users', icon: UsersIcon },
           { href: '/tasks', label: 'Tasks', icon: ClipboardIcon },
           { href: '/payments', label: 'Payments', icon: WalletIcon },
+          { href: '/settings', label: 'Settings', icon: SettingsIcon },
         ]
       : [
           { href: '/tasks', label: 'Tasks', icon: ClipboardIcon },
           { href: '/earnings', label: 'Earnings', icon: WalletIcon },
+          { href: '/settings', label: 'Settings', icon: SettingsIcon },
         ]),
   ];
 

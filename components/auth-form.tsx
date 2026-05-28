@@ -1,9 +1,12 @@
 'use client';
 
 import { useActionState, useState } from 'react';
-import { useFormStatus } from 'react-dom';
+import Link from 'next/link';
 import { login, register, type AuthFormState } from '@/app/actions/auth';
-import { buttonClass, cn, inputClass, labelClass } from '@/lib/styles';
+import { FormFeedback } from '@/components/form-feedback';
+import { PasswordInput } from '@/components/password-input';
+import { SubmitButton } from '@/components/submit-button';
+import { cn, inputClass, labelClass } from '@/lib/styles';
 
 type Mode = 'login' | 'register';
 const showDevCredentials =
@@ -11,16 +14,14 @@ const showDevCredentials =
 
 export function AuthForm() {
   const [mode, setMode] = useState<Mode>('login');
-  const [showLoginPassword, setShowLoginPassword] = useState(false);
-  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [loginState, loginAction] = useActionState<AuthFormState, FormData>(
     login,
     {},
   );
-  const [registerState, registerAction] = useActionState<AuthFormState, FormData>(
-    register,
-    {},
-  );
+  const [registerState, registerAction] = useActionState<
+    AuthFormState,
+    FormData
+  >(register, {});
 
   return (
     <div className="rounded-[18px] border border-[#e2e8e3] bg-white p-[2.2rem] shadow-[0_14px_42px_rgb(22_34_29_/_6%)]">
@@ -66,19 +67,31 @@ export function AuthForm() {
         >
           <label className={labelClass}>
             Email
-            <input className={inputClass} name="email" type="email" required autoComplete="email" />
+            <input
+              className={inputClass}
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+            />
           </label>
           <label className={labelClass}>
             Password
             <PasswordInput
               name="password"
               autoComplete="current-password"
-              visible={showLoginPassword}
-              onToggle={() => setShowLoginPassword((value) => !value)}
             />
           </label>
-          <AuthError message={loginState.error} />
-          <SubmitButton label="Sign in" pendingLabel="Signing in..." />
+          <div className="-mt-2 flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-[0.86rem] font-semibold text-[#11664b] hover:underline"
+            >
+              Forgot password?
+            </Link>
+          </div>
+          <FormFeedback error={loginState.error} />
+          <SubmitButton label="Sign in" pendingLabel="Signing in..." className="mt-2.5 w-full" />
         </form>
       ) : (
         <form
@@ -100,7 +113,13 @@ export function AuthForm() {
           </label>
           <label className={labelClass}>
             Email
-            <input className={inputClass} name="email" type="email" required autoComplete="email" />
+            <input
+              className={inputClass}
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+            />
           </label>
           <label className={labelClass}>
             Password
@@ -108,12 +127,14 @@ export function AuthForm() {
               name="password"
               autoComplete="new-password"
               minLength={8}
-              visible={showRegisterPassword}
-              onToggle={() => setShowRegisterPassword((value) => !value)}
             />
           </label>
-          <AuthError message={registerState.error} />
-          <SubmitButton label="Create worker account" pendingLabel="Creating account..." />
+          <FormFeedback error={registerState.error} />
+          <SubmitButton
+            label="Create worker account"
+            pendingLabel="Creating account..."
+            className="mt-2.5 w-full"
+          />
         </form>
       )}
       {showDevCredentials && (
@@ -126,87 +147,5 @@ export function AuthForm() {
         </p>
       )}
     </div>
-  );
-}
-
-function PasswordInput({
-  name,
-  autoComplete,
-  minLength,
-  visible,
-  onToggle,
-}: {
-  name: string;
-  autoComplete: string;
-  minLength?: number;
-  visible: boolean;
-  onToggle: () => void;
-}) {
-  return (
-    <div className="relative">
-      <input
-        className={`${inputClass} pr-20`}
-        name={name}
-        type={visible ? 'text' : 'password'}
-        required
-        minLength={minLength}
-        autoComplete={autoComplete}
-      />
-      <button
-        type="button"
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-md px-2 py-1 text-[0.78rem] font-semibold text-[#11664b] transition hover:bg-[#e7f3ed]"
-        onClick={onToggle}
-        aria-label={visible ? 'Hide password' : 'Show password'}
-        aria-pressed={visible}
-      >
-        {visible ? 'Hide' : 'Show'}
-      </button>
-    </div>
-  );
-}
-
-function AuthError({ message }: { message?: string }) {
-  if (!message) return null;
-
-  return (
-    <p
-      className="rounded-[10px] bg-[#fde9e9] px-4 py-3 text-[0.9rem] font-medium text-[#ae3939]"
-      role="alert"
-      aria-live="polite"
-    >
-      {message}
-    </p>
-  );
-}
-
-function SubmitButton({
-  label,
-  pendingLabel,
-}: {
-  label: string;
-  pendingLabel: string;
-}) {
-  const { pending } = useFormStatus();
-
-  return (
-    <button
-      className={cn(
-        buttonClass,
-        'mt-2.5 w-full',
-        pending && 'cursor-not-allowed opacity-70 hover:translate-y-0 hover:bg-[#11664b]',
-      )}
-      type="submit"
-      disabled={pending}
-      aria-disabled={pending}
-    >
-      {pending ? (
-        <span className="inline-flex items-center gap-2">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-          {pendingLabel}
-        </span>
-      ) : (
-        label
-      )}
-    </button>
   );
 }

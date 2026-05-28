@@ -1,5 +1,5 @@
 import { addTask, decideTask, startReview } from '@/app/actions/tasks';
-import { ClipboardIcon, PlusIcon, UserIcon } from '@/components/icons';
+import { ClipboardIcon, PlusIcon } from '@/components/icons';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
 import { StatusPill } from '@/components/status-pill';

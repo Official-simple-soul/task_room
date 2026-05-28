@@ -1,5 +1,4 @@
 import { AuthForm } from '@/components/auth-form';
-import { BrandLogo } from '@/components/brand-logo';
 
 export default function LoginPage() {
   return (

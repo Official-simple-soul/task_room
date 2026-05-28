@@ -1,5 +1,4 @@
 import { logout } from '@/app/actions/auth';
-import { BrandLogo } from '@/components/brand-logo';
 import { UserIcon } from '@/components/icons';
 import { PortalNav } from '@/components/portal-nav';
 import { requireProfile } from '@/lib/auth';
