@@ -18,6 +18,12 @@ const taskSchema = z.object({
   task_url: z.url(),
   step_range: z.enum(stepRanges),
   task_language: z.string().trim().min(1).max(60),
+  application: z
+    .string()
+    .trim()
+    .max(120)
+    .optional()
+    .transform((value) => value || null),
   prompt: z.string().trim().min(5).max(5000),
   fee: z.coerce.number().min(0).max(100000).default(3),
 });
@@ -60,6 +66,7 @@ export async function addTask(userId: string, formData: FormData) {
     task_url: task.task_url,
     step_range: task.step_range,
     task_language: task.task_language,
+    application: task.application,
     prompt: task.prompt,
     fee_cents: Math.round(task.fee * 100),
   });
@@ -88,6 +95,7 @@ export async function addTaskGlobal(formData: FormData) {
     task_url: task.task_url,
     step_range: task.step_range,
     task_language: task.task_language,
+    application: task.application,
     prompt: task.prompt,
     fee_cents: Math.round(task.fee * 100),
   });

@@ -12,6 +12,9 @@ export type Profile = {
   id: string;
   full_name: string;
   role: Role;
+  payment_bank_name?: string | null;
+  payment_account_number?: string | null;
+  payment_account_name?: string | null;
 };
 
 export type Task = {
@@ -21,8 +24,10 @@ export type Task = {
   task_url: string | null;
   step_range: string;
   task_language: string;
+  application: string | null;
   prompt: string;
   fee_cents: number;
+  rework_count: number;
   status: TaskStatus;
   admin_comment: string | null;
   created_at: string;

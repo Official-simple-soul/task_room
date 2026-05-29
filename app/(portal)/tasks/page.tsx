@@ -1,9 +1,11 @@
 import { claimTask, completeTask } from '@/app/actions/tasks';
 import { ClipboardIcon, PlusIcon } from '@/components/icons';
+import { SubmitButton } from '@/components/submit-button';
 import Link from 'next/link';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
 import { StatusPill } from '@/components/status-pill';
+import { TaskPrompt } from '@/components/task-prompt';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money, statusLabels } from '@/lib/format';
 import {
@@ -20,7 +22,6 @@ import {
   taskGridClass,
   taskLinkClass,
   taskMetaClass,
-  taskPromptClass,
   taskTitleClass,
 } from '@/lib/styles';
 import type { Task, TaskStatus } from '@/lib/types';
@@ -168,13 +169,18 @@ export default async function TasksPage({
                   <p className="m-0 text-[0.92rem] text-[#4c5b51]">
                     {task.task_language} | {task.step_range} expected steps
                   </p>
+                  {task.application && (
+                    <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
+                      Application: {task.application}
+                    </p>
+                  )}
                   <p className="mt-1.5 text-[0.9rem] text-[#68766e]">
                     Assigned to: {task.assigned_to}
                   </p>
                 </div>
                 <StatusPill status={task.status} />
               </div>
-              <p className={taskPromptClass}>{task.prompt}</p>
+              <TaskPrompt prompt={task.prompt} />
               <dl className={taskMetaClass}>
                 <div>
                   <dt>Fee</dt>
@@ -183,6 +189,10 @@ export default async function TasksPage({
                 <div>
                   <dt>Assigned</dt>
                   <dd>{dateLabel(task.created_at)}</dd>
+                </div>
+                <div>
+                  <dt>Reworks</dt>
+                  <dd>{task.rework_count}</dd>
                 </div>
               </dl>
               {task.admin_comment && (
@@ -208,7 +218,11 @@ export default async function TasksPage({
                   action={completeTask.bind(null, task.id)}
                   className={actionsClass}
                 >
-                  <button className={buttonClass}>Move to review</button>
+                  <SubmitButton
+                    label="Move to review"
+                    pendingLabel="Moving to review..."
+                    className={buttonClass}
+                  />
                 </form>
               )}
             </article>
@@ -238,6 +252,11 @@ export default async function TasksPage({
         subtitle="Claim a pending task to reveal its working link. Approved work is permanently closed."
       />
       <Message notice={notice} error={error} />
+      <section className="mb-5 rounded-2xl border border-[#f3d79d] bg-[#fff8ea] px-4 py-3 text-[0.92rem] leading-6 text-[#6a4a12]">
+        <strong className="text-[#9a6408]">Quality reminder:</strong> tasks
+        sent back for rework more than once may have their fee reduced. Review
+        the prompt carefully before submitting.
+      </section>
       <TaskStatusFilter status={activeStatus} tasks={tasks} />
       <div className={taskGridClass}>
         {displayedTasks.map((task) => (
@@ -256,10 +275,15 @@ export default async function TasksPage({
                 <p className="m-0 text-[0.92rem] text-[#4c5b51]">
                   {task.task_language} | {task.step_range} expected steps
                 </p>
+                {task.application && (
+                  <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
+                    Application: {task.application}
+                  </p>
+                )}
               </div>
               <StatusPill status={task.status} />
             </div>
-            <p className={taskPromptClass}>{task.prompt}</p>
+            <TaskPrompt prompt={task.prompt} />
             <dl className={taskMetaClass}>
               <div>
                 <dt>Fee</dt>
@@ -268,6 +292,10 @@ export default async function TasksPage({
               <div>
                 <dt>Assigned</dt>
                 <dd>{dateLabel(task.created_at)}</dd>
+              </div>
+              <div>
+                <dt>Reworks</dt>
+                <dd>{task.rework_count}</dd>
               </div>
             </dl>
             {task.admin_comment && (
@@ -295,12 +323,20 @@ export default async function TasksPage({
             <div className={actionsClass}>
               {task.status === 'pending' && (
                 <form action={claimTask.bind(null, task.id)}>
-                  <button className={buttonClass}>Claim task</button>
+                  <SubmitButton
+                    label="Claim task"
+                    pendingLabel="Claiming..."
+                    className={buttonClass}
+                  />
                 </form>
               )}
               {(task.status === 'claimed' || task.status === 'rework') && (
                 <form action={completeTask.bind(null, task.id)}>
-                  <button className={buttonClass}>Mark completed</button>
+                  <SubmitButton
+                    label="Mark completed"
+                    pendingLabel="Submitting..."
+                    className={buttonClass}
+                  />
                 </form>
               )}
             </div>

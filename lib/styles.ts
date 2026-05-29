@@ -50,8 +50,7 @@ export const fieldGridClass = 'grid grid-cols-1 items-end gap-4 md:grid-cols-3';
 export const paymentGridClass =
   'grid grid-cols-1 items-end gap-4 lg:grid-cols-4';
 
-export const taskGridClass =
-  'grid grid-cols-1 gap-[1.3rem] md:grid-cols-[repeat(auto-fit,minmax(320px,1fr))]';
+export const taskGridClass = 'grid grid-cols-1 gap-[1.3rem]';
 
 export const taskCardClass =
   'rounded-[22px] bg-[linear-gradient(180deg,#ffffff_0%,#f6fbf6_100%)] p-[1.8rem] shadow-[0_18px_44px_rgba(22,34,29,0.08)] transition hover:-translate-y-0.5 hover:shadow-[0_24px_54px_rgba(22,34,29,0.11)]';
@@ -63,7 +62,7 @@ export const taskPromptClass =
   'my-[1.15rem] rounded-2xl bg-[#f8fbf7] p-[1rem_1.1rem] text-[0.95rem] leading-[1.7] text-[#394a40]';
 
 export const taskMetaClass =
-  'mb-4 grid grid-cols-2 gap-6 [&_dd]:mt-1.5 [&_dd]:font-bold [&_dt]:text-[0.78rem] [&_dt]:text-[#68766e]';
+  'mb-4 grid grid-cols-2 gap-6 sm:grid-cols-3 [&_dd]:mt-1.5 [&_dd]:font-bold [&_dt]:text-[0.78rem] [&_dt]:text-[#68766e]';
 
 export const taskLinkClass =
   'inline-flex w-full items-center justify-between overflow-hidden rounded-[14px] bg-[#e9f4ec] px-4 py-[0.9rem] text-[0.9rem] text-[#11664b]';

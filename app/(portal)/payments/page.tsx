@@ -26,7 +26,9 @@ export default async function PaymentsPage({
   const [{ data: users }, { data: payments }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, full_name')
+      .select(
+        'id, full_name, payment_bank_name, payment_account_number, payment_account_name',
+      )
       .eq('role', 'user')
       .order('full_name'),
     supabase
@@ -100,6 +102,39 @@ export default async function PaymentsPage({
           </label>
           <button className={buttonClass}>Save payment</button>
         </form>
+      </section>
+      <section className={`${panelClass} overflow-x-auto`}>
+        <div className="mb-[1.15rem] flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+            <WalletIcon className="h-5 w-5" />
+          </span>
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+            Worker payment details
+          </h2>
+        </div>
+        <table className={tableClass}>
+          <thead>
+            <tr>
+              <th className={thClass}>User</th>
+              <th className={thClass}>Bank</th>
+              <th className={thClass}>Account number</th>
+              <th className={thClass}>Account name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(users ?? []).map((user) => (
+              <tr key={user.id}>
+                <td className={tdClass}>{user.full_name || 'Unnamed user'}</td>
+                <td className={tdClass}>{user.payment_bank_name || '-'}</td>
+                <td className={tdClass}>
+                  {user.payment_account_number || '-'}
+                </td>
+                <td className={tdClass}>{user.payment_account_name || '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!users?.length && <p className={emptyClass}>No workers found.</p>}
       </section>
       <section className={`${panelClass} overflow-x-auto`}>
         <div className="mb-[1.15rem] flex items-center gap-3">

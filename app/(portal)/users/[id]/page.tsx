@@ -3,6 +3,8 @@ import { ClipboardIcon, PlusIcon } from '@/components/icons';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
 import { StatusPill } from '@/components/status-pill';
+import { SubmitButton } from '@/components/submit-button';
+import { TaskPrompt } from '@/components/task-prompt';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money } from '@/lib/format';
 import {
@@ -20,7 +22,6 @@ import {
   taskCardClass,
   taskGridClass,
   taskLinkClass,
-  taskPromptClass,
   taskTitleClass,
   warningButtonClass,
 } from '@/lib/styles';
@@ -41,7 +42,9 @@ export default async function UserDetailsPage({
   const [{ data: user }, { data }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, full_name')
+      .select(
+        'id, full_name, payment_bank_name, payment_account_number, payment_account_name',
+      )
       .eq('id', id)
       .eq('role', 'user')
       .single(),
@@ -62,6 +65,30 @@ export default async function UserDetailsPage({
         subtitle={`${tasks.length} assignments | ${money(tasks.filter((task) => task.status === 'approved').reduce((sum, task) => sum + task.fee_cents, 0))} approved`}
       />
       <Message notice={notice} error={error} />
+      <section className={panelClass}>
+        <div className="mb-[1.15rem] flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+            <ClipboardIcon className="h-5 w-5" />
+          </span>
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+            Payment details
+          </h2>
+        </div>
+        <dl className="grid gap-4 sm:grid-cols-3 [&_dd]:mt-1.5 [&_dd]:font-bold [&_dt]:text-[0.78rem] [&_dt]:text-[#68766e]">
+          <div>
+            <dt>Bank</dt>
+            <dd>{user.payment_bank_name || '-'}</dd>
+          </div>
+          <div>
+            <dt>Account number</dt>
+            <dd>{user.payment_account_number || '-'}</dd>
+          </div>
+          <div>
+            <dt>Account name</dt>
+            <dd>{user.payment_account_name || '-'}</dd>
+          </div>
+        </dl>
+      </section>
       <section className={panelClass}>
         <div className="mb-[1.15rem] flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
@@ -106,6 +133,14 @@ export default async function UserDetailsPage({
               name="task_language"
               required
               placeholder="Python"
+            />
+          </label>
+          <label className={labelClass}>
+            Application name
+            <input
+              className={inputClass}
+              name="application"
+              placeholder="Visual Studio Code"
             />
           </label>
           <label className={labelClass}>
@@ -160,12 +195,18 @@ export default async function UserDetailsPage({
                   </h3>
                   <p className="m-0 text-[0.92rem] text-[#4c5b51]">
                     {task.task_language} | {task.step_range} steps |{' '}
-                    {money(task.fee_cents)} | {dateLabel(task.created_at)}
+                    {money(task.fee_cents)} | {dateLabel(task.created_at)} |{' '}
+                    {task.rework_count} reworks
                   </p>
+                  {task.application && (
+                    <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
+                      Application: {task.application}
+                    </p>
+                  )}
                 </div>
                 <StatusPill status={task.status} />
               </div>
-              <p className={taskPromptClass}>{task.prompt}</p>
+              <TaskPrompt prompt={task.prompt} />
               {task.task_url ? (
                 <a
                   className={taskLinkClass}
@@ -189,7 +230,11 @@ export default async function UserDetailsPage({
                   action={startReview.bind(null, task.id, id)}
                   className={actionsClass}
                 >
-                  <button className={buttonClass}>Move to review</button>
+                  <SubmitButton
+                    label="Move to review"
+                    pendingLabel="Moving to review..."
+                    className={buttonClass}
+                  />
                 </form>
               )}
               {task.status === 'under_review' && (
@@ -204,27 +249,27 @@ export default async function UserDetailsPage({
                     placeholder="Feedback required for rework; optional otherwise."
                   />
                   <div className={actionsClass}>
-                    <button
+                    <SubmitButton
+                      label="Approve"
+                      pendingLabel="Approving..."
                       className={buttonClass}
                       name="status"
                       value="approved"
-                    >
-                      Approve
-                    </button>
-                    <button
+                    />
+                    <SubmitButton
+                      label="Request rework"
+                      pendingLabel="Requesting..."
                       className={warningButtonClass}
                       name="status"
                       value="rework"
-                    >
-                      Request rework
-                    </button>
-                    <button
+                    />
+                    <SubmitButton
+                      label="Reject"
+                      pendingLabel="Rejecting..."
                       className={dangerButtonClass}
                       name="status"
                       value="rejected"
-                    >
-                      Reject
-                    </button>
+                    />
                   </div>
                 </form>
               )}

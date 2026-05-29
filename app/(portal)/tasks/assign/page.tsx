@@ -99,6 +99,14 @@ export default async function AssignTaskPage({
             />
           </label>
           <label className={labelClass}>
+            Application name
+            <input
+              className={inputClass}
+              name="application"
+              placeholder="Visual Studio Code"
+            />
+          </label>
+          <label className={labelClass}>
             Fee (USD)
             <input
               className={inputClass}
