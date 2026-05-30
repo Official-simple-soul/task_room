@@ -7,6 +7,7 @@ import { buttonClass, cn } from '@/lib/styles';
 export function SubmitButton({
   label,
   pendingLabel,
+  baseClassName = buttonClass,
   className,
   disabled,
   type,
@@ -14,6 +15,7 @@ export function SubmitButton({
 }: {
   label: string;
   pendingLabel: string;
+  baseClassName?: string;
   className?: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const { pending } = useFormStatus();
@@ -22,10 +24,9 @@ export function SubmitButton({
   return (
     <button
       className={cn(
-        buttonClass,
+        baseClassName,
         className,
-        isDisabled &&
-          'cursor-not-allowed opacity-70 hover:translate-y-0 hover:bg-[#11664b]',
+        isDisabled && 'cursor-not-allowed opacity-70 hover:translate-y-0',
       )}
       type={type ?? 'submit'}
       disabled={isDisabled}

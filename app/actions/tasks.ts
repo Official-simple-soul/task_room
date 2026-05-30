@@ -106,6 +106,41 @@ export async function addTaskGlobal(formData: FormData) {
   notice(path, 'Task assigned successfully.');
 }
 
+export async function updateTask(
+  taskId: string,
+  userId: string,
+  formData: FormData,
+) {
+  const { supabase } = await requireProfile('admin');
+  const parsed = taskSchema.safeParse(Object.fromEntries(formData));
+  const path = `/users/${userId}`;
+  if (!parsed.success) notice(path, 'Please provide valid task details.', true);
+
+  const task = parsed.data;
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({
+      external_task_id: task.external_task_id,
+      task_url: task.task_url,
+      step_range: task.step_range,
+      task_language: task.task_language,
+      application: task.application,
+      prompt: task.prompt,
+      fee_cents: Math.round(task.fee * 100),
+    })
+    .eq('id', taskId)
+    .neq('status', 'approved')
+    .select('id')
+    .maybeSingle();
+
+  if (error) notice(path, error.message, true);
+  if (!data) notice(path, 'Approved tasks cannot be edited.', true);
+
+  revalidatePath(path);
+  revalidatePath('/tasks');
+  notice(path, 'Task updated successfully.');
+}
+
 export async function startReview(taskId: string, userId: string) {
   const { supabase } = await requireProfile('admin');
   const { error } = await supabase

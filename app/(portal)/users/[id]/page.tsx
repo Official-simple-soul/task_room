@@ -1,4 +1,9 @@
-import { addTask, decideTask, startReview } from '@/app/actions/tasks';
+import {
+  addTask,
+  decideTask,
+  startReview,
+  updateTask,
+} from '@/app/actions/tasks';
 import { ClipboardIcon, PlusIcon } from '@/components/icons';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
@@ -164,10 +169,7 @@ export default async function UserDetailsPage({
               placeholder="Describe the task and acceptance criteria."
             />
           </label>
-          <button className={buttonClass} type="submit">
-            <PlusIcon className="mr-2 h-4 w-4" />
-            Assign task
-          </button>
+          <SubmitButton label="Assign task" pendingLabel="Assigning..." />
         </form>
       </section>
       <section className={panelClass}>
@@ -207,6 +209,91 @@ export default async function UserDetailsPage({
                 <StatusPill status={task.status} />
               </div>
               <TaskPrompt prompt={task.prompt} />
+              {task.status !== 'approved' && (
+                <form
+                  action={updateTask.bind(null, task.id, id)}
+                  className="mt-4 rounded-2xl border border-[#edf1ee] bg-white/70 p-4"
+                >
+                  <h4 className="mb-3 text-[0.95rem] font-semibold text-[#16221d]">
+                    Edit task details
+                  </h4>
+                  <div className={fieldGridClass}>
+                    <label className={labelClass}>
+                      Task ID
+                      <input
+                        className={inputClass}
+                        name="external_task_id"
+                        required
+                        defaultValue={task.external_task_id}
+                      />
+                    </label>
+                    <label className={labelClass}>
+                      URL
+                      <input
+                        className={inputClass}
+                        name="task_url"
+                        type="url"
+                        required
+                        defaultValue={task.task_url ?? ''}
+                      />
+                    </label>
+                    <label className={labelClass}>
+                      Expected steps
+                      <select
+                        className={inputClass}
+                        name="step_range"
+                        defaultValue={task.step_range}
+                      >
+                        {ranges.map((range) => (
+                          <option key={range}>{range}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label className={labelClass}>
+                      Language
+                      <input
+                        className={inputClass}
+                        name="task_language"
+                        required
+                        defaultValue={task.task_language}
+                      />
+                    </label>
+                    <label className={labelClass}>
+                      Application name
+                      <input
+                        className={inputClass}
+                        name="application"
+                        defaultValue={task.application ?? ''}
+                      />
+                    </label>
+                    <label className={labelClass}>
+                      Fee (USD)
+                      <input
+                        className={inputClass}
+                        name="fee"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        defaultValue={(task.fee_cents / 100).toFixed(2)}
+                      />
+                    </label>
+                    <label className={`${labelClass} md:col-span-3`}>
+                      Task prompt
+                      <textarea
+                        className={inputClass}
+                        name="prompt"
+                        rows={3}
+                        required
+                        defaultValue={task.prompt}
+                      />
+                    </label>
+                    <SubmitButton
+                      label="Save task changes"
+                      pendingLabel="Saving task..."
+                    />
+                  </div>
+                </form>
+              )}
               {task.task_url ? (
                 <a
                   className={taskLinkClass}

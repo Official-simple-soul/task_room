@@ -2,10 +2,10 @@ import { requireProfile } from '@/lib/auth';
 import { Message } from '@/components/message';
 import { addTaskGlobal } from '@/app/actions/tasks';
 import Link from 'next/link';
-import { ClipboardIcon, PlusIcon } from '@/components/icons';
+import { ClipboardIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
+import { SubmitButton } from '@/components/submit-button';
 import {
-  buttonClass,
   fieldGridClass,
   inputClass,
   labelClass,
@@ -128,10 +128,7 @@ export default async function AssignTaskPage({
             />
           </label>
           <div className="mt-2.5 flex gap-2.5">
-            <button className={buttonClass} type="submit">
-              <PlusIcon className="mr-2 h-4 w-4" />
-              Assign task
-            </button>
+            <SubmitButton label="Assign task" pendingLabel="Assigning..." />
             <Link href="/tasks" className={textButtonClass}>
               Back to tasks
             </Link>

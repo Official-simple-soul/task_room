@@ -2,10 +2,10 @@ import { recordPayment } from '@/app/actions/payments';
 import { CalendarIcon, WalletIcon } from '@/components/icons';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
+import { SubmitButton } from '@/components/submit-button';
 import { requireProfile } from '@/lib/auth';
 import { money, monthLabel } from '@/lib/format';
 import {
-  buttonClass,
   emptyClass,
   inputClass,
   labelClass,
@@ -100,7 +100,7 @@ export default async function PaymentsPage({
               placeholder="Optional payment reference"
             />
           </label>
-          <button className={buttonClass}>Save payment</button>
+          <SubmitButton label="Save payment" pendingLabel="Saving..." />
         </form>
       </section>
       <section className={`${panelClass} overflow-x-auto`}>

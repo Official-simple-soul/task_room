@@ -1,4 +1,4 @@
-import { claimTask, completeTask } from '@/app/actions/tasks';
+import { claimTask, completeTask, startReview } from '@/app/actions/tasks';
 import { ClipboardIcon, PlusIcon } from '@/components/icons';
 import { SubmitButton } from '@/components/submit-button';
 import Link from 'next/link';
@@ -215,7 +215,7 @@ export default async function TasksPage({
               )}
               {task.status === 'completed' && (
                 <form
-                  action={completeTask.bind(null, task.id)}
+                  action={startReview.bind(null, task.id, task.assigned_to)}
                   className={actionsClass}
                 >
                   <SubmitButton
