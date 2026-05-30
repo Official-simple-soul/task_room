@@ -1,10 +1,11 @@
+import type { ReactNode } from 'react';
+import Link from 'next/link';
 import { claimTask, completeTask, startReview } from '@/app/actions/tasks';
 import { ClipboardIcon, PlusIcon } from '@/components/icons';
-import { SubmitButton } from '@/components/submit-button';
-import Link from 'next/link';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
 import { StatusPill } from '@/components/status-pill';
+import { SubmitButton } from '@/components/submit-button';
 import { TaskPrompt } from '@/components/task-prompt';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money, statusLabels } from '@/lib/format';
@@ -18,11 +19,8 @@ import {
   hiddenUrlClass,
   panelClass,
   statusBorderClass,
-  taskCardClass,
-  taskGridClass,
   taskLinkClass,
   taskMetaClass,
-  taskTitleClass,
 } from '@/lib/styles';
 import type { Task, TaskStatus } from '@/lib/types';
 
@@ -103,6 +101,115 @@ function TaskStatusFilter({
   );
 }
 
+function TaskList({
+  tasks,
+  emptyMessage,
+  showAssignee = false,
+  actions,
+}: {
+  tasks: Task[];
+  emptyMessage: string;
+  showAssignee?: boolean;
+  actions: (task: Task) => ReactNode;
+}) {
+  if (!tasks.length) {
+    return <section className={`${panelClass} ${emptyClass}`}>{emptyMessage}</section>;
+  }
+
+  return (
+    <section className={`${panelClass} overflow-hidden p-0`}>
+      <div className="grid">
+        {tasks.map((task) => (
+          <details
+            className={cn(
+              'group border-b border-[#edf1ee] bg-white last:border-b-0 open:bg-[#fbfdfb]',
+              statusBorderClass[task.status],
+            )}
+            key={task.id}
+          >
+            <summary className="grid cursor-pointer list-none grid-cols-[1fr_auto] items-center gap-4 px-4 py-3 transition hover:bg-[#f6fbf6] sm:grid-cols-[1.1fr_1fr_auto] [&::-webkit-details-marker]:hidden">
+              <div className="min-w-0">
+                <p className="m-0 truncate text-[0.98rem] font-bold text-[#16221d]">
+                  {task.external_task_id}
+                </p>
+                <p className="m-0 mt-1 truncate text-[0.82rem] text-[#68766e]">
+                  {task.task_language} | {task.step_range} steps
+                  {task.application ? ` | ${task.application}` : ''}
+                </p>
+              </div>
+              <div className="hidden min-w-0 text-[0.84rem] text-[#68766e] sm:block">
+                <span className="font-semibold text-[#405247]">
+                  {money(task.fee_cents)}
+                </span>{' '}
+                | {dateLabel(task.created_at)} | {task.rework_count} reworks
+                {showAssignee ? (
+                  <span className="block truncate">Assigned: {task.assigned_to}</span>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2">
+                <StatusPill status={task.status} />
+                <span className="hidden text-[0.8rem] font-semibold text-[#11664b] group-open:hidden md:inline">
+                  View
+                </span>
+                <span className="hidden text-[0.8rem] font-semibold text-[#68766e] group-open:inline md:inline">
+                  Close
+                </span>
+              </div>
+            </summary>
+
+            <div className="border-t border-[#edf1ee] px-4 py-5">
+              <TaskPrompt prompt={task.prompt} />
+              <dl className={taskMetaClass}>
+                <div>
+                  <dt>Fee</dt>
+                  <dd>{money(task.fee_cents)}</dd>
+                </div>
+                <div>
+                  <dt>Assigned</dt>
+                  <dd>{dateLabel(task.created_at)}</dd>
+                </div>
+                <div>
+                  <dt>Reworks</dt>
+                  <dd>{task.rework_count}</dd>
+                </div>
+                {showAssignee ? (
+                  <div>
+                    <dt>Assigned to</dt>
+                    <dd className="break-all">{task.assigned_to}</dd>
+                  </div>
+                ) : null}
+              </dl>
+              {task.admin_comment && (
+                <div className={commentClass}>
+                  <strong>Admin feedback</strong>
+                  {task.admin_comment}
+                </div>
+              )}
+              {task.task_url ? (
+                <a
+                  href={task.task_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={taskLinkClass}
+                >
+                  {task.task_url}
+                </a>
+              ) : (
+                task.status !== 'approved' && (
+                  <p className={hiddenUrlClass}>
+                    URL hidden until this task is claimed.
+                  </p>
+                )
+              )}
+              {actions(task)}
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function TasksPage({
   searchParams,
 }: {
@@ -127,7 +234,7 @@ export default async function TasksPage({
         <PageHeader
           eyebrow="Administration"
           title="Tasks"
-          subtitle="Overview of all assigned tasks and review workflow."
+          subtitle="A compact list for scanning large task volumes. Open a row to view details and actions."
         />
         <Message notice={notice} error={error} />
         <TaskStatusFilter status={activeStatus} tasks={tasks} />
@@ -139,12 +246,12 @@ export default async function TasksPage({
                 <ClipboardIcon className="h-5 w-5" />
               </span>
               <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
-                Task management
+                {displayedTasks.length} visible tasks
               </h2>
             </div>
             <p className="mt-2.5 max-w-[520px] text-[0.95rem] leading-[1.7] text-[#68766e]">
-              Create, monitor, and route assignments from one place with a clean
-              task overview.
+              Click a task row to expand the URL, prompt, payment, rework count,
+              and available review actions.
             </p>
           </div>
           <Link href="/tasks/assign" className={buttonClass}>
@@ -152,88 +259,27 @@ export default async function TasksPage({
             Assign task
           </Link>
         </section>
-        <div className={taskGridClass}>
-          {displayedTasks.map((task) => (
-            <article
-              className={cn(taskCardClass, statusBorderClass[task.status])}
-              key={task.id}
-            >
-              <div className={taskTitleClass}>
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e7f3ed] text-[#11664b]">
-                  <ClipboardIcon className="h-6 w-6" />
-                </span>
-                <div className="min-w-0">
-                  <h2 className="m-0 text-[1.18rem] tracking-[-0.03em]">
-                    {task.external_task_id}
-                  </h2>
-                  <p className="m-0 text-[0.92rem] text-[#4c5b51]">
-                    {task.task_language} | {task.step_range} expected steps
-                  </p>
-                  {task.application && (
-                    <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
-                      Application: {task.application}
-                    </p>
-                  )}
-                  <p className="mt-1.5 text-[0.9rem] text-[#68766e]">
-                    Assigned to: {task.assigned_to}
-                  </p>
-                </div>
-                <StatusPill status={task.status} />
-              </div>
-              <TaskPrompt prompt={task.prompt} />
-              <dl className={taskMetaClass}>
-                <div>
-                  <dt>Fee</dt>
-                  <dd>{money(task.fee_cents)}</dd>
-                </div>
-                <div>
-                  <dt>Assigned</dt>
-                  <dd>{dateLabel(task.created_at)}</dd>
-                </div>
-                <div>
-                  <dt>Reworks</dt>
-                  <dd>{task.rework_count}</dd>
-                </div>
-              </dl>
-              {task.admin_comment && (
-                <div className={commentClass}>
-                  <strong>Admin feedback</strong>
-                  {task.admin_comment}
-                </div>
-              )}
-              {task.task_url ? (
-                <a
-                  href={task.task_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={taskLinkClass}
-                >
-                  {task.task_url}
-                </a>
-              ) : (
-                <p className={hiddenUrlClass}>URL hidden until claimed.</p>
-              )}
-              {task.status === 'completed' && (
-                <form
-                  action={startReview.bind(null, task.id, task.assigned_to)}
-                  className={actionsClass}
-                >
-                  <SubmitButton
-                    label="Move to review"
-                    pendingLabel="Moving to review..."
-                    className={buttonClass}
-                  />
-                </form>
-              )}
-            </article>
-          ))}
-          {!displayedTasks.length && (
-            <section className={`${panelClass} ${emptyClass}`}>
-              No {activeStatus ? statusLabels[activeStatus].toLowerCase() : ''}{' '}
-              tasks found.
-            </section>
-          )}
-        </div>
+        <TaskList
+          tasks={displayedTasks}
+          showAssignee
+          emptyMessage={`No ${
+            activeStatus ? statusLabels[activeStatus].toLowerCase() : ''
+          } tasks found.`}
+          actions={(task) =>
+            task.status === 'completed' ? (
+              <form
+                action={startReview.bind(null, task.id, task.assigned_to)}
+                className={actionsClass}
+              >
+                <SubmitButton
+                  label="Move to review"
+                  pendingLabel="Moving to review..."
+                  className={buttonClass}
+                />
+              </form>
+            ) : null
+          }
+        />
       </>
     );
   }
@@ -249,7 +295,7 @@ export default async function TasksPage({
       <PageHeader
         eyebrow="Work queue"
         title="Tasks"
-        subtitle="Claim a pending task to reveal its working link. Approved work is permanently closed."
+        subtitle="A slim list of your assignments. Open a row to view the full prompt, URL, and actions."
       />
       <Message notice={notice} error={error} />
       <section className="mb-5 rounded-2xl border border-[#f3d79d] bg-[#fff8ea] px-4 py-3 text-[0.92rem] leading-6 text-[#6a4a12]">
@@ -258,98 +304,36 @@ export default async function TasksPage({
         the prompt carefully before submitting.
       </section>
       <TaskStatusFilter status={activeStatus} tasks={tasks} />
-      <div className={taskGridClass}>
-        {displayedTasks.map((task) => (
-          <article
-            className={cn(taskCardClass, statusBorderClass[task.status])}
-            key={task.id}
-          >
-            <div className={taskTitleClass}>
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e7f3ed] text-[#11664b]">
-                <ClipboardIcon className="h-6 w-6" />
-              </span>
-              <div className="min-w-0">
-                <h2 className="m-0 text-[1.18rem] tracking-[-0.03em]">
-                  {task.external_task_id}
-                </h2>
-                <p className="m-0 text-[0.92rem] text-[#4c5b51]">
-                  {task.task_language} | {task.step_range} expected steps
-                </p>
-                {task.application && (
-                  <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
-                    Application: {task.application}
-                  </p>
-                )}
-              </div>
-              <StatusPill status={task.status} />
-            </div>
-            <TaskPrompt prompt={task.prompt} />
-            <dl className={taskMetaClass}>
-              <div>
-                <dt>Fee</dt>
-                <dd>{money(task.fee_cents)}</dd>
-              </div>
-              <div>
-                <dt>Assigned</dt>
-                <dd>{dateLabel(task.created_at)}</dd>
-              </div>
-              <div>
-                <dt>Reworks</dt>
-                <dd>{task.rework_count}</dd>
-              </div>
-            </dl>
-            {task.admin_comment && (
-              <div className={commentClass}>
-                <strong>Admin feedback</strong>
-                {task.admin_comment}
-              </div>
+      <TaskList
+        tasks={displayedTasks}
+        emptyMessage={
+          tasks.length && activeStatus
+            ? `No ${statusLabels[activeStatus].toLowerCase()} tasks found.`
+            : 'You do not have assigned tasks yet.'
+        }
+        actions={(task) => (
+          <div className={actionsClass}>
+            {task.status === 'pending' && (
+              <form action={claimTask.bind(null, task.id)}>
+                <SubmitButton
+                  label="Claim task"
+                  pendingLabel="Claiming..."
+                  className={buttonClass}
+                />
+              </form>
             )}
-            {task.task_url ? (
-              <a
-                href={task.task_url}
-                target="_blank"
-                rel="noreferrer"
-                className={taskLinkClass}
-              >
-                {task.task_url}
-              </a>
-            ) : (
-              task.status !== 'approved' && (
-                <p className={hiddenUrlClass}>
-                  URL hidden until this task is claimed.
-                </p>
-              )
+            {(task.status === 'claimed' || task.status === 'rework') && (
+              <form action={completeTask.bind(null, task.id)}>
+                <SubmitButton
+                  label="Mark completed"
+                  pendingLabel="Submitting..."
+                  className={buttonClass}
+                />
+              </form>
             )}
-            <div className={actionsClass}>
-              {task.status === 'pending' && (
-                <form action={claimTask.bind(null, task.id)}>
-                  <SubmitButton
-                    label="Claim task"
-                    pendingLabel="Claiming..."
-                    className={buttonClass}
-                  />
-                </form>
-              )}
-              {(task.status === 'claimed' || task.status === 'rework') && (
-                <form action={completeTask.bind(null, task.id)}>
-                  <SubmitButton
-                    label="Mark completed"
-                    pendingLabel="Submitting..."
-                    className={buttonClass}
-                  />
-                </form>
-              )}
-            </div>
-          </article>
-        ))}
-        {!displayedTasks.length && (
-          <section className={`${panelClass} ${emptyClass}`}>
-            {tasks.length && activeStatus
-              ? `No ${statusLabels[activeStatus].toLowerCase()} tasks found.`
-              : 'You do not have assigned tasks yet.'}
-          </section>
+          </div>
         )}
-      </div>
+      />
     </>
   );
 }

@@ -56,14 +56,14 @@ export default async function LeaderboardPage({
       <PageHeader
         eyebrow="Performance"
         title={activePeriodMeta.headline}
-        subtitle="A privacy-safe ranking of completed task volume. Worker identities stay hidden behind anonymous aliases."
+        subtitle="A motivating ranking of completed task volume using each worker's second name."
         icon={<TrophyIcon className="h-5 w-5" />}
       />
 
       <section className="mb-6 flex flex-col gap-4 rounded-[22px] border border-[rgba(17,102,75,0.12)] bg-[linear-gradient(135deg,#e7f3ed_0%,rgba(255,255,255,0.92)_100%)] p-5 shadow-[0_16px_40px_rgba(22,34,29,0.06)] lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="m-0 text-[0.78rem] font-bold uppercase tracking-[0.13em] text-[#11664b]">
-            Anonymous leaderboard
+            Worker leaderboard
           </p>
           <h2 className="mt-2 text-[1.35rem] font-bold tracking-[-0.04em] text-[#16221d]">
             {totalCompleted} completed tasks in this period
@@ -104,8 +104,8 @@ export default async function LeaderboardPage({
                 Full ranking
               </h2>
               <p className="m-0 mt-1 text-[0.88rem] text-[#68766e]">
-                Anonymous aliases refresh from the account identity, not from
-                real names.
+                Workers are shown by second name so strong performance feels
+                visible and motivating.
               </p>
             </div>
           </div>
@@ -165,7 +165,7 @@ function TopWorkerCard({
         {entry.worker_alias}
       </h2>
       <p className="relative z-10 mt-2 text-[0.9rem] opacity-80">
-        {entry.is_current_user ? 'Your anonymous position' : 'Anonymous worker'}
+        {entry.is_current_user ? 'Your position' : 'Worker'}
       </p>
       <div className="relative z-10 mt-7 grid grid-cols-2 gap-3">
         <Metric
