@@ -24,10 +24,14 @@ const periods: Array<{
     label: 'Last month',
     headline: 'Leaderboard last month',
   },
+  { value: 'all', label: 'All time', headline: 'Leaderboard all time' },
 ];
 
 function parsePeriod(value?: string): LeaderboardPeriod {
-  return value === 'day' || value === 'month' || value === 'last_month'
+  return value === 'day' ||
+    value === 'month' ||
+    value === 'last_month' ||
+    value === 'all'
     ? value
     : 'week';
 }
@@ -73,7 +77,8 @@ export default async function LeaderboardPage({
             Worker leaderboard
           </p>
           <h2 className="mt-2 text-[1.35rem] font-bold tracking-[-0.04em] text-[#16221d]">
-            {totalCompleted} completed tasks in this period
+            {totalCompleted} completed tasks
+            {activePeriod === 'all' ? ' overall' : ' in this period'}
           </h2>
         </div>
         <nav className="flex flex-wrap gap-2" aria-label="Leaderboard period">
