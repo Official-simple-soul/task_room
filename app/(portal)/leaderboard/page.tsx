@@ -19,10 +19,17 @@ const periods: Array<{
   { value: 'day', label: 'Today', headline: 'Leaderboard today' },
   { value: 'week', label: 'This week', headline: 'Leaderboard this week' },
   { value: 'month', label: 'This month', headline: 'Leaderboard this month' },
+  {
+    value: 'last_month',
+    label: 'Last month',
+    headline: 'Leaderboard last month',
+  },
 ];
 
 function parsePeriod(value?: string): LeaderboardPeriod {
-  return value === 'day' || value === 'month' ? value : 'week';
+  return value === 'day' || value === 'month' || value === 'last_month'
+    ? value
+    : 'week';
 }
 
 export default async function LeaderboardPage({

@@ -45,7 +45,7 @@ export type MonthlyMetric = {
   earned_cents: number;
 };
 
-export type LeaderboardPeriod = "day" | "week" | "month";
+export type LeaderboardPeriod = "day" | "week" | "month" | "last_month";
 
 export type LeaderboardEntry = {
   rank: number;
