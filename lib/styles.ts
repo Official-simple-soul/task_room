@@ -8,6 +8,9 @@ export const brandClass =
 export const buttonClass =
   'inline-flex w-fit cursor-pointer items-center justify-center rounded-[10px] border-0 bg-[#11664b] px-[1.3rem] py-[0.85rem] text-[0.95rem] font-semibold text-white transition hover:-translate-y-px hover:bg-[#0a513b] active:translate-y-0';
 
+export const secondaryButtonClass =
+  'inline-flex w-fit cursor-pointer items-center justify-center rounded-[10px] border border-[#d4ded8] bg-white px-[1rem] py-[0.82rem] text-[0.95rem] font-semibold text-[#11664b] shadow-sm transition hover:-translate-y-px hover:border-[#98b8a8] hover:bg-[#f6fbf7] active:translate-y-0';
+
 export const warningButtonClass =
   'inline-flex w-fit cursor-pointer items-center justify-center rounded-[10px] border-0 bg-[#fff3df] px-[1.3rem] py-[0.85rem] text-[0.95rem] font-semibold text-[#a56308] transition hover:-translate-y-px active:translate-y-0';
 

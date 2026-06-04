@@ -26,6 +26,7 @@ import {
   inputClass,
   labelClass,
   panelClass,
+  secondaryButtonClass,
   statusBorderClass,
   taskLinkClass,
   taskMetaClass,
@@ -227,7 +228,7 @@ function TaskList({
               {showAssignee && task.status === 'pending' && (
                 <form
                   action={reassignTask.bind(null, task.id)}
-                  className="mt-4 grid gap-3 rounded-2xl border border-[#edf1ee] bg-white/80 p-4 sm:grid-cols-[1fr_auto]"
+                  className="mt-4 grid gap-4 rounded-2xl border border-[#edf1ee] bg-white/90 p-4 shadow-[0_10px_30px_rgba(17,102,75,0.05)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
                 >
                   <input type="hidden" name="return_path" value={returnPath} />
                   <label className={labelClass}>
@@ -245,7 +246,12 @@ function TaskList({
                       ))}
                     </select>
                   </label>
-                  <SubmitButton label="Reassign" pendingLabel="Reassigning..." />
+                  <SubmitButton
+                    label="Reassign"
+                    pendingLabel="Reassigning..."
+                    baseClassName={secondaryButtonClass}
+                    className="self-end justify-self-end"
+                  />
                 </form>
               )}
               {actions(task)}

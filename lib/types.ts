@@ -11,6 +11,7 @@ export type TaskStatus =
 export type Profile = {
   id: string;
   full_name: string;
+  email?: string | null;
   role: Role;
   payment_bank_name?: string | null;
   payment_account_number?: string | null;

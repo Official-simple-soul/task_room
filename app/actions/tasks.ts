@@ -2,9 +2,20 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { after } from 'next/server';
 import { z } from 'zod';
 import { requireProfile } from '@/lib/auth';
+import { sendTaskEmail, type TaskEmailPayload } from '@/lib/email';
 import { acceptedTaskStepRanges, taskFeeCents } from '@/lib/task-rates';
+
+type SupabaseClient = Awaited<ReturnType<typeof requireProfile>>['supabase'];
+type TaskEmailRow = {
+  external_task_id: string;
+  assigned_to: string;
+  task_language: string;
+  step_range: string;
+  fee_cents: number;
+};
 
 const taskSchema = z.object({
   external_task_id: z.string().trim().min(1).max(80),
@@ -34,6 +45,34 @@ function notice(path: string, message: string, failed = false): never {
   );
 }
 
+function queueTaskEmail(
+  supabase: SupabaseClient,
+  task: TaskEmailRow | null | undefined,
+  status: TaskEmailPayload['status'],
+  comment?: string | null,
+) {
+  if (!task) return;
+
+  after(async () => {
+    const { data: worker } = await supabase
+      .from('profiles')
+      .select('full_name, email')
+      .eq('id', task.assigned_to)
+      .maybeSingle();
+
+    await sendTaskEmail({
+      to: worker?.email,
+      workerName: worker?.full_name,
+      taskId: task.external_task_id,
+      status,
+      language: task.task_language,
+      stepRange: task.step_range,
+      feeCents: task.fee_cents,
+      comment,
+    });
+  });
+}
+
 export async function claimTask(taskId: string) {
   const { supabase } = await requireProfile('user');
   const { error } = await supabase.rpc('claim_task', { p_task_id: taskId });
@@ -59,19 +98,24 @@ export async function addTask(userId: string, formData: FormData) {
   if (!parsed.success) notice(path, 'Please provide valid task details.', true);
 
   const task = parsed.data;
-  const { error } = await supabase.from('tasks').insert({
-    assigned_to: userId,
-    created_by: profile.id,
-    external_task_id: task.external_task_id,
-    task_url: task.task_url,
-    step_range: task.step_range,
-    task_language: task.task_language,
-    application: task.application,
-    prompt: task.prompt,
-    fee_cents: taskFeeCents(task.step_range, task.fee),
-  });
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert({
+      assigned_to: userId,
+      created_by: profile.id,
+      external_task_id: task.external_task_id,
+      task_url: task.task_url,
+      step_range: task.step_range,
+      task_language: task.task_language,
+      application: task.application,
+      prompt: task.prompt,
+      fee_cents: taskFeeCents(task.step_range, task.fee),
+    })
+    .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
+    .single();
 
   if (error) notice(path, error.message, true);
+  queueTaskEmail(supabase, data, 'assigned');
   revalidatePath(path);
   revalidatePath('/users');
   notice(path, 'Task assigned successfully.');
@@ -88,19 +132,24 @@ export async function addTaskGlobal(formData: FormData) {
   if (!assigned_to)
     notice(path, 'Please select a user to assign this task to.', true);
 
-  const { error } = await supabase.from('tasks').insert({
-    assigned_to,
-    created_by: profile.id,
-    external_task_id: task.external_task_id,
-    task_url: task.task_url,
-    step_range: task.step_range,
-    task_language: task.task_language,
-    application: task.application,
-    prompt: task.prompt,
-    fee_cents: taskFeeCents(task.step_range, task.fee),
-  });
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert({
+      assigned_to,
+      created_by: profile.id,
+      external_task_id: task.external_task_id,
+      task_url: task.task_url,
+      step_range: task.step_range,
+      task_language: task.task_language,
+      application: task.application,
+      prompt: task.prompt,
+      fee_cents: taskFeeCents(task.step_range, task.fee),
+    })
+    .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
+    .single();
 
   if (error) notice(path, error.message, true);
+  queueTaskEmail(supabase, data, 'assigned');
   revalidatePath(path);
   revalidatePath(`/users/${assigned_to}`);
   notice(path, 'Task assigned successfully.');
@@ -156,7 +205,7 @@ export async function reassignTask(taskId: string, formData: FormData) {
     .update({ assigned_to: assignedTo })
     .eq('id', taskId)
     .eq('status', 'pending')
-    .select('id')
+    .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
     .maybeSingle();
 
   if (error) notice(returnPath, error.message, true);
@@ -164,6 +213,7 @@ export async function reassignTask(taskId: string, formData: FormData) {
     notice(returnPath, 'Only pending tasks can be reassigned.', true);
   }
 
+  queueTaskEmail(supabase, data, 'assigned');
   revalidatePath(returnPath);
   revalidatePath('/tasks');
   revalidatePath(`/users/${assignedTo}`);
@@ -172,11 +222,14 @@ export async function reassignTask(taskId: string, formData: FormData) {
 
 export async function startReview(taskId: string, userId: string) {
   const { supabase } = await requireProfile('admin');
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('tasks')
     .update({ status: 'under_review' })
-    .eq('id', taskId);
+    .eq('id', taskId)
+    .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
+    .maybeSingle();
   if (error) notice(`/users/${userId}`, error.message, true);
+  queueTaskEmail(supabase, data, 'under_review');
   revalidatePath(`/users/${userId}`);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');
@@ -201,11 +254,14 @@ export async function decideTask(
     );
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('tasks')
     .update({ status, admin_comment: comment })
-    .eq('id', taskId);
+    .eq('id', taskId)
+    .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
+    .maybeSingle();
   if (error) notice(`/users/${userId}`, error.message, true);
+  queueTaskEmail(supabase, data, status, comment);
   revalidatePath(`/users/${userId}`);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');
