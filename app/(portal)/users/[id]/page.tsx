@@ -1,6 +1,7 @@
 import {
   addTask,
   decideTask,
+  reassignTask,
   startReview,
   updateTask,
 } from '@/app/actions/tasks';
@@ -12,6 +13,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { TaskPrompt } from '@/components/task-prompt';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money } from '@/lib/format';
+import { taskStepRanges } from '@/lib/task-rates';
 import {
   actionsClass,
   buttonClass,
@@ -32,8 +34,6 @@ import {
 } from '@/lib/styles';
 import type { Task } from '@/lib/types';
 
-const ranges = ['10-25', '25-50', '50-75', '75-100', '100-130', '130-200'];
-
 export default async function UserDetailsPage({
   params,
   searchParams,
@@ -44,7 +44,7 @@ export default async function UserDetailsPage({
   const { id } = await params;
   const { notice, error } = await searchParams;
   const { supabase } = await requireProfile('admin');
-  const [{ data: user }, { data }] = await Promise.all([
+  const [{ data: user }, { data }, { data: usersData }] = await Promise.all([
     supabase
       .from('profiles')
       .select(
@@ -58,9 +58,15 @@ export default async function UserDetailsPage({
       .select('*')
       .eq('assigned_to', id)
       .order('created_at', { ascending: false }),
+    supabase
+      .from('profiles')
+      .select('id, full_name')
+      .eq('role', 'user')
+      .order('full_name'),
   ]);
   if (!user) return <p>User not found.</p>;
   const tasks = (data ?? []) as Task[];
+  const users = (usersData ?? []) as Array<{ id: string; full_name: string }>;
 
   return (
     <>
@@ -126,7 +132,7 @@ export default async function UserDetailsPage({
           <label className={labelClass}>
             Expected steps
             <select className={inputClass} name="step_range">
-              {ranges.map((range) => (
+              {taskStepRanges.map((range) => (
                 <option key={range}>{range}</option>
               ))}
             </select>
@@ -149,14 +155,14 @@ export default async function UserDetailsPage({
             />
           </label>
           <label className={labelClass}>
-            Fee (USD)
+            Fee (USD, optional override)
             <input
               className={inputClass}
               name="fee"
               type="number"
               min="0"
               step="0.01"
-              defaultValue="3.00"
+              placeholder="Auto by expected steps"
             />
           </label>
           <label className={`${labelClass} md:col-span-3`}>
@@ -249,7 +255,14 @@ export default async function UserDetailsPage({
                           name="step_range"
                           defaultValue={task.step_range}
                         >
-                          {ranges.map((range) => (
+                          {[
+                            ...(taskStepRanges.includes(
+                              task.step_range as (typeof taskStepRanges)[number],
+                            )
+                              ? []
+                              : [task.step_range]),
+                            ...taskStepRanges,
+                          ].map((range) => (
                             <option key={range}>{range}</option>
                           ))}
                         </select>
@@ -299,6 +312,30 @@ export default async function UserDetailsPage({
                     </div>
                   </form>
                 </details>
+              )}
+              {task.status === 'pending' && (
+                <form
+                  action={reassignTask.bind(null, task.id)}
+                  className="mt-4 grid gap-3 rounded-2xl border border-[#edf1ee] bg-white/70 p-4 sm:grid-cols-[1fr_auto]"
+                >
+                  <input type="hidden" name="return_path" value={`/users/${id}`} />
+                  <label className={labelClass}>
+                    Reassign pending task
+                    <select
+                      className={inputClass}
+                      name="assigned_to"
+                      defaultValue={task.assigned_to}
+                      required
+                    >
+                      {users.map((worker) => (
+                        <option key={worker.id} value={worker.id}>
+                          {worker.full_name || 'Unnamed worker'}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <SubmitButton label="Reassign" pendingLabel="Reassigning..." />
+                </form>
               )}
               {task.task_url ? (
                 <a

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ClipboardIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { SubmitButton } from '@/components/submit-button';
+import { taskStepRanges } from '@/lib/task-rates';
 import {
   fieldGridClass,
   inputClass,
@@ -12,8 +13,6 @@ import {
   panelClass,
   textButtonClass,
 } from '@/lib/styles';
-
-const ranges = ['10-25', '25-50', '50-75', '75-100', '100-130', '130-200'];
 
 type UserOption = {
   id: string;
@@ -84,7 +83,7 @@ export default async function AssignTaskPage({
           <label className={labelClass}>
             Expected steps
             <select className={inputClass} name="step_range">
-              {ranges.map((r) => (
+              {taskStepRanges.map((r) => (
                 <option key={r}>{r}</option>
               ))}
             </select>
@@ -107,14 +106,14 @@ export default async function AssignTaskPage({
             />
           </label>
           <label className={labelClass}>
-            Fee (USD)
+            Fee (USD, optional override)
             <input
               className={inputClass}
               name="fee"
               type="number"
               min="0"
               step="0.01"
-              defaultValue="3.00"
+              placeholder="Auto by expected steps"
             />
           </label>
           <label className={`${labelClass} md:col-span-3`}>

@@ -35,6 +35,15 @@ const passwordUpdateSchema = z
     path: ["confirm_password"],
   });
 
+async function getSiteUrl() {
+  const requestHeaders = await headers();
+  return (
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    requestHeaders.get("origin") ??
+    "http://127.0.0.1:3000"
+  );
+}
+
 function authErrorMessage(message: string) {
   const value = message.toLowerCase();
 
@@ -83,11 +92,15 @@ export async function register(
   }
 
   const { full_name: fullName, email, password } = parsed.data;
+  const siteUrl = await getSiteUrl();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
-    options: { data: { full_name: fullName } },
+    options: {
+      data: { full_name: fullName },
+      emailRedirectTo: `${siteUrl}/login`,
+    },
   });
 
   if (error) return { error: authErrorMessage(error.message) };
@@ -109,14 +122,10 @@ export async function requestPasswordReset(
     return { error: parsed.error.issues[0]?.message ?? "Enter a valid email address." };
   }
 
-  const requestHeaders = await headers();
-  const origin =
-    requestHeaders.get("origin") ??
-    process.env.NEXT_PUBLIC_SITE_URL ??
-    "http://127.0.0.1:3000";
+  const siteUrl = await getSiteUrl();
   const supabase = await createClient();
   const { error } = await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${origin}/auth/callback?next=/reset-password`,
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
   });
 
   if (error) return { error: authErrorMessage(error.message) };

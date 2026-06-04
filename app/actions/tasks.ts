@@ -4,19 +4,12 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { requireProfile } from '@/lib/auth';
+import { acceptedTaskStepRanges, taskFeeCents } from '@/lib/task-rates';
 
-const stepRanges = [
-  '10-25',
-  '25-50',
-  '50-75',
-  '75-100',
-  '100-130',
-  '130-200',
-] as const;
 const taskSchema = z.object({
   external_task_id: z.string().trim().min(1).max(80),
   task_url: z.url(),
-  step_range: z.enum(stepRanges),
+  step_range: z.enum(acceptedTaskStepRanges),
   task_language: z.string().trim().min(1).max(60),
   application: z
     .string()
@@ -25,7 +18,14 @@ const taskSchema = z.object({
     .optional()
     .transform((value) => value || null),
   prompt: z.string().trim().min(5).max(5000),
-  fee: z.coerce.number().min(0).max(100000).default(3),
+  fee: z.preprocess(
+    (value) => (String(value ?? '').trim() === '' ? undefined : value),
+    z.coerce.number().min(0).max(100000).optional(),
+  ),
+});
+const reassignSchema = z.object({
+  assigned_to: z.uuid(),
+  return_path: z.string().startsWith('/').default('/tasks'),
 });
 
 function notice(path: string, message: string, failed = false): never {
@@ -68,7 +68,7 @@ export async function addTask(userId: string, formData: FormData) {
     task_language: task.task_language,
     application: task.application,
     prompt: task.prompt,
-    fee_cents: Math.round(task.fee * 100),
+    fee_cents: taskFeeCents(task.step_range, task.fee),
   });
 
   if (error) notice(path, error.message, true);
@@ -97,7 +97,7 @@ export async function addTaskGlobal(formData: FormData) {
     task_language: task.task_language,
     application: task.application,
     prompt: task.prompt,
-    fee_cents: Math.round(task.fee * 100),
+    fee_cents: taskFeeCents(task.step_range, task.fee),
   });
 
   if (error) notice(path, error.message, true);
@@ -126,7 +126,7 @@ export async function updateTask(
       task_language: task.task_language,
       application: task.application,
       prompt: task.prompt,
-      fee_cents: Math.round(task.fee * 100),
+      fee_cents: taskFeeCents(task.step_range, task.fee),
     })
     .eq('id', taskId)
     .neq('status', 'approved')
@@ -139,6 +139,35 @@ export async function updateTask(
   revalidatePath(path);
   revalidatePath('/tasks');
   notice(path, 'Task updated successfully.');
+}
+
+export async function reassignTask(taskId: string, formData: FormData) {
+  const { supabase } = await requireProfile('admin');
+  const parsed = reassignSchema.safeParse(Object.fromEntries(formData));
+  const fallbackPath = '/tasks';
+
+  if (!parsed.success) {
+    notice(fallbackPath, 'Please select a valid worker to reassign this task.', true);
+  }
+
+  const { assigned_to: assignedTo, return_path: returnPath } = parsed.data;
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ assigned_to: assignedTo })
+    .eq('id', taskId)
+    .eq('status', 'pending')
+    .select('id')
+    .maybeSingle();
+
+  if (error) notice(returnPath, error.message, true);
+  if (!data) {
+    notice(returnPath, 'Only pending tasks can be reassigned.', true);
+  }
+
+  revalidatePath(returnPath);
+  revalidatePath('/tasks');
+  revalidatePath(`/users/${assignedTo}`);
+  notice(returnPath, 'Task reassigned successfully.');
 }
 
 export async function startReview(taskId: string, userId: string) {

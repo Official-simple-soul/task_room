@@ -1,7 +1,12 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { claimTask, completeTask, startReview } from '@/app/actions/tasks';
-import { ClipboardIcon, PlusIcon } from '@/components/icons';
+import {
+  claimTask,
+  completeTask,
+  reassignTask,
+  startReview,
+} from '@/app/actions/tasks';
+import { ClipboardIcon, DollarIcon, PlusIcon } from '@/components/icons';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
 import { StatusPill } from '@/components/status-pill';
@@ -9,6 +14,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { TaskPrompt } from '@/components/task-prompt';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money, statusLabels } from '@/lib/format';
+import { taskPaymentRates } from '@/lib/task-rates';
 import {
   actionsClass,
   buttonClass,
@@ -17,12 +23,19 @@ import {
   emptyClass,
   eyebrowClass,
   hiddenUrlClass,
+  inputClass,
+  labelClass,
   panelClass,
   statusBorderClass,
   taskLinkClass,
   taskMetaClass,
 } from '@/lib/styles';
 import type { Task, TaskStatus } from '@/lib/types';
+
+type UserOption = {
+  id: string;
+  full_name: string;
+};
 
 const filterStatuses: TaskStatus[] = [
   'pending',
@@ -105,11 +118,17 @@ function TaskList({
   tasks,
   emptyMessage,
   showAssignee = false,
+  users = [],
+  assigneeNames = {},
+  returnPath = '/tasks',
   actions,
 }: {
   tasks: Task[];
   emptyMessage: string;
   showAssignee?: boolean;
+  users?: UserOption[];
+  assigneeNames?: Record<string, string>;
+  returnPath?: string;
   actions: (task: Task) => ReactNode;
 }) {
   if (!tasks.length) {
@@ -143,7 +162,9 @@ function TaskList({
                 </span>{' '}
                 | {dateLabel(task.created_at)} | {task.rework_count} reworks
                 {showAssignee ? (
-                  <span className="block truncate">Assigned: {task.assigned_to}</span>
+                  <span className="block truncate">
+                    Assigned: {assigneeNames[task.assigned_to] ?? task.assigned_to}
+                  </span>
                 ) : null}
               </div>
               <div className="flex items-center gap-2">
@@ -175,7 +196,9 @@ function TaskList({
                 {showAssignee ? (
                   <div>
                     <dt>Assigned to</dt>
-                    <dd className="break-all">{task.assigned_to}</dd>
+                    <dd className="break-all">
+                      {assigneeNames[task.assigned_to] ?? task.assigned_to}
+                    </dd>
                   </div>
                 ) : null}
               </dl>
@@ -201,9 +224,74 @@ function TaskList({
                   </p>
                 )
               )}
+              {showAssignee && task.status === 'pending' && (
+                <form
+                  action={reassignTask.bind(null, task.id)}
+                  className="mt-4 grid gap-3 rounded-2xl border border-[#edf1ee] bg-white/80 p-4 sm:grid-cols-[1fr_auto]"
+                >
+                  <input type="hidden" name="return_path" value={returnPath} />
+                  <label className={labelClass}>
+                    Reassign pending task
+                    <select
+                      className={inputClass}
+                      name="assigned_to"
+                      defaultValue={task.assigned_to}
+                      required
+                    >
+                      {users.map((user) => (
+                        <option key={user.id} value={user.id}>
+                          {user.full_name || 'Unnamed worker'}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <SubmitButton label="Reassign" pendingLabel="Reassigning..." />
+                </form>
+              )}
               {actions(task)}
             </div>
           </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function TaskRateAnnouncement() {
+  return (
+    <section className="mb-5 overflow-hidden rounded-[24px] border border-[rgba(17,102,75,0.14)] bg-[radial-gradient(circle_at_top_right,rgba(22,164,102,0.18),transparent_32%),linear-gradient(135deg,#0f5f46_0%,#11664b_45%,#163228_100%)] p-5 text-white shadow-[0_22px_60px_rgba(22,34,29,0.14)]">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-white backdrop-blur">
+            <DollarIcon className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="m-0 text-[0.75rem] font-bold uppercase tracking-[0.14em] text-white/70">
+              Updated task payment
+            </p>
+            <h2 className="m-0 mt-1 text-[1.2rem] font-bold tracking-[-0.03em]">
+              New task rates apply moving forward
+            </h2>
+          </div>
+        </div>
+        <p className="m-0 max-w-[420px] text-[0.9rem] leading-6 text-white/75">
+          Fees are based on the expected step count. Admin can still override a
+          task fee when needed.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+        {taskPaymentRates.map((rate) => (
+          <div
+            key={rate.range}
+            className="rounded-2xl border border-white/10 bg-white/12 px-4 py-3 backdrop-blur"
+          >
+            <span className="block text-[0.78rem] font-semibold text-white/65">
+              {rate.range} steps
+            </span>
+            <strong className="mt-1 block text-[1.2rem] tracking-[-0.04em]">
+              {rate.price}
+            </strong>
+          </div>
         ))}
       </div>
     </section>
@@ -220,11 +308,19 @@ export default async function TasksPage({
   const activeStatus = selectedStatus(status);
 
   if (profile.role === 'admin') {
-    const { data } = await supabase
-      .from('tasks')
-      .select('*')
-      .order('created_at', { ascending: false });
+    const [{ data }, { data: usersData }] = await Promise.all([
+      supabase.from('tasks').select('*').order('created_at', { ascending: false }),
+      supabase
+        .from('profiles')
+        .select('id, full_name')
+        .eq('role', 'user')
+        .order('full_name'),
+    ]);
     const tasks = (data ?? []) as Task[];
+    const users = (usersData ?? []) as UserOption[];
+    const assigneeNames = Object.fromEntries(
+      users.map((user) => [user.id, user.full_name || 'Unnamed worker']),
+    );
     const displayedTasks = activeStatus
       ? tasks.filter((task) => task.status === activeStatus)
       : tasks;
@@ -237,6 +333,7 @@ export default async function TasksPage({
           subtitle="A compact list for scanning large task volumes. Open a row to view details and actions."
         />
         <Message notice={notice} error={error} />
+        <TaskRateAnnouncement />
         <TaskStatusFilter status={activeStatus} tasks={tasks} />
         <section className="my-6 flex flex-col gap-5 rounded-[14px] border border-[rgba(17,102,75,0.14)] bg-[linear-gradient(135deg,rgba(231,243,237,0.9)_0%,rgba(255,255,255,0.95)_100%)] p-[1.8rem] shadow-[0_2px_8px_rgba(22,34,29,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <div>
@@ -262,6 +359,9 @@ export default async function TasksPage({
         <TaskList
           tasks={displayedTasks}
           showAssignee
+          users={users}
+          assigneeNames={assigneeNames}
+          returnPath="/tasks"
           emptyMessage={`No ${
             activeStatus ? statusLabels[activeStatus].toLowerCase() : ''
           } tasks found.`}
@@ -298,6 +398,7 @@ export default async function TasksPage({
         subtitle="A slim list of your assignments. Open a row to view the full prompt, URL, and actions."
       />
       <Message notice={notice} error={error} />
+      <TaskRateAnnouncement />
       <section className="mb-5 rounded-2xl border border-[#f3d79d] bg-[#fff8ea] px-4 py-3 text-[0.92rem] leading-6 text-[#6a4a12]">
         <strong className="text-[#9a6408]">Quality reminder:</strong> tasks
         sent back for rework more than once may have their fee reduced. Review
