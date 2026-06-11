@@ -3,23 +3,25 @@ import Link from 'next/link';
 import {
   claimTask,
   completeTask,
+  deleteTask,
   reassignTask,
   startReview,
 } from '@/app/actions/tasks';
-import { ClipboardIcon, DollarIcon, PlusIcon } from '@/components/icons';
+import { ClipboardIcon, PlusIcon } from '@/components/icons';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
 import { StatusPill } from '@/components/status-pill';
 import { SubmitButton } from '@/components/submit-button';
 import { TaskPrompt } from '@/components/task-prompt';
+import { TaskRateAnnouncement } from '@/components/task-rate-announcement';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money, statusLabels } from '@/lib/format';
-import { taskPaymentRates } from '@/lib/task-rates';
 import {
   actionsClass,
   buttonClass,
   cn,
   commentClass,
+  dangerButtonClass,
   emptyClass,
   eyebrowClass,
   hiddenUrlClass,
@@ -37,6 +39,7 @@ type UserOption = {
   id: string;
   full_name: string;
 };
+const deletableStatuses: TaskStatus[] = ['pending', 'rework', 'rejected'];
 
 const filterStatuses: TaskStatus[] = [
   'pending',
@@ -133,7 +136,11 @@ function TaskList({
   actions: (task: Task) => ReactNode;
 }) {
   if (!tasks.length) {
-    return <section className={`${panelClass} ${emptyClass}`}>{emptyMessage}</section>;
+    return (
+      <section className={`${panelClass} ${emptyClass}`}>
+        {emptyMessage}
+      </section>
+    );
   }
 
   return (
@@ -164,7 +171,8 @@ function TaskList({
                 | {dateLabel(task.created_at)} | {task.rework_count} reworks
                 {showAssignee ? (
                   <span className="block truncate">
-                    Assigned: {assigneeNames[task.assigned_to] ?? task.assigned_to}
+                    Assigned:{' '}
+                    {assigneeNames[task.assigned_to] ?? task.assigned_to}
                   </span>
                 ) : null}
               </div>
@@ -185,6 +193,14 @@ function TaskList({
                 <div>
                   <dt>Fee</dt>
                   <dd>{money(task.fee_cents)}</dd>
+                </div>
+                <div>
+                  <dt>Expected steps</dt>
+                  <dd>{task.step_range}</dd>
+                </div>
+                <div>
+                  <dt>Final steps</dt>
+                  <dd>{task.final_step_count ?? '-'}</dd>
                 </div>
                 <div>
                   <dt>Assigned</dt>
@@ -254,50 +270,22 @@ function TaskList({
                   />
                 </form>
               )}
+              {showAssignee && deletableStatuses.includes(task.status) && (
+                <form
+                  action={deleteTask.bind(null, task.id)}
+                  className={actionsClass}
+                >
+                  <input type="hidden" name="return_path" value={returnPath} />
+                  <SubmitButton
+                    label="Delete task"
+                    pendingLabel="Deleting..."
+                    className={dangerButtonClass}
+                  />
+                </form>
+              )}
               {actions(task)}
             </div>
           </details>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function TaskRateAnnouncement() {
-  return (
-    <section className="mb-5 overflow-hidden rounded-[24px] border border-[rgba(17,102,75,0.14)] bg-[radial-gradient(circle_at_top_right,rgba(22,164,102,0.18),transparent_32%),linear-gradient(135deg,#0f5f46_0%,#11664b_45%,#163228_100%)] p-5 text-white shadow-[0_22px_60px_rgba(22,34,29,0.14)]">
-      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-white backdrop-blur">
-            <DollarIcon className="h-5 w-5" />
-          </span>
-          <div>
-            <p className="m-0 text-[0.75rem] font-bold uppercase tracking-[0.14em] text-white/70">
-              Updated task payment
-            </p>
-            <h2 className="m-0 mt-1 text-[1.2rem] font-bold tracking-[-0.03em]">
-              New task rates apply moving forward
-            </h2>
-          </div>
-        </div>
-        <p className="m-0 max-w-[420px] text-[0.9rem] leading-6 text-white/75">
-          Fees are based on the expected step count. Admin can still override a
-          task fee when needed.
-        </p>
-      </div>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        {taskPaymentRates.map((rate) => (
-          <div
-            key={rate.range}
-            className="rounded-2xl border border-white/10 bg-white/12 px-4 py-3 backdrop-blur"
-          >
-            <span className="block text-[0.78rem] font-semibold text-white/65">
-              {rate.range} steps
-            </span>
-            <strong className="mt-1 block text-[1.2rem] tracking-[-0.04em]">
-              {rate.price}
-            </strong>
-          </div>
         ))}
       </div>
     </section>
@@ -315,7 +303,10 @@ export default async function TasksPage({
 
   if (profile.role === 'admin') {
     const [{ data }, { data: usersData }] = await Promise.all([
-      supabase.from('tasks').select('*').order('created_at', { ascending: false }),
+      supabase
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: false }),
       supabase
         .from('profiles')
         .select('id, full_name')
@@ -406,9 +397,9 @@ export default async function TasksPage({
       <Message notice={notice} error={error} />
       <TaskRateAnnouncement />
       <section className="mb-5 rounded-2xl border border-[#f3d79d] bg-[#fff8ea] px-4 py-3 text-[0.92rem] leading-6 text-[#6a4a12]">
-        <strong className="text-[#9a6408]">Quality reminder:</strong> tasks
-        sent back for rework more than once may have their fee reduced. Review
-        the prompt carefully before submitting.
+        <strong className="text-[#9a6408]">Quality reminder:</strong> tasks sent
+        back for rework more than once may have their fee reduced. Review the
+        prompt carefully before submitting.
       </section>
       <TaskStatusFilter status={activeStatus} tasks={tasks} />
       <TaskList
@@ -430,7 +421,23 @@ export default async function TasksPage({
               </form>
             )}
             {(task.status === 'claimed' || task.status === 'rework') && (
-              <form action={completeTask.bind(null, task.id)}>
+              <form
+                action={completeTask.bind(null, task.id)}
+                className="grid gap-3 rounded-2xl border border-[#edf1ee] bg-white/80 p-4 sm:grid-cols-[minmax(180px,260px)_auto] sm:items-end"
+              >
+                <label className={labelClass}>
+                  Final step count
+                  <input
+                    className={inputClass}
+                    name="final_step_count"
+                    type="number"
+                    min="1"
+                    step="1"
+                    required
+                    placeholder="e.g. 58"
+                    defaultValue={task.final_step_count ?? ''}
+                  />
+                </label>
                 <SubmitButton
                   label="Mark completed"
                   pendingLabel="Submitting..."

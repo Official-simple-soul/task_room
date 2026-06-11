@@ -28,6 +28,7 @@ export type Task = {
   application: string | null;
   prompt: string;
   fee_cents: number;
+  final_step_count: number | null;
   rework_count: number;
   status: TaskStatus;
   admin_comment: string | null;

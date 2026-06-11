@@ -38,6 +38,12 @@ const reassignSchema = z.object({
   assigned_to: z.uuid(),
   return_path: z.string().startsWith('/').default('/tasks'),
 });
+const completeTaskSchema = z.object({
+  final_step_count: z.coerce.number().int().min(1).max(100000),
+});
+const deleteTaskSchema = z.object({
+  return_path: z.string().startsWith('/').default('/tasks'),
+});
 
 function notice(path: string, message: string, failed = false): never {
   redirect(
@@ -81,9 +87,17 @@ export async function claimTask(taskId: string) {
   notice('/tasks', 'Task claimed. The working URL is now available.');
 }
 
-export async function completeTask(taskId: string) {
+export async function completeTask(taskId: string, formData: FormData) {
   const { supabase } = await requireProfile('user');
-  const { error } = await supabase.rpc('complete_task', { p_task_id: taskId });
+  const parsed = completeTaskSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    notice('/tasks', 'Enter the final step count before submitting.', true);
+  }
+
+  const { error } = await supabase.rpc('complete_task', {
+    p_task_id: taskId,
+    p_final_step_count: parsed.data.final_step_count,
+  });
   if (error) notice('/tasks', error.message, true);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');
@@ -218,6 +232,34 @@ export async function reassignTask(taskId: string, formData: FormData) {
   revalidatePath('/tasks');
   revalidatePath(`/users/${assignedTo}`);
   notice(returnPath, 'Task reassigned successfully.');
+}
+
+export async function deleteTask(taskId: string, formData: FormData) {
+  const { supabase } = await requireProfile('admin');
+  const parsed = deleteTaskSchema.safeParse(Object.fromEntries(formData));
+  const returnPath = parsed.success ? parsed.data.return_path : '/tasks';
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('id', taskId)
+    .in('status', ['pending', 'rework', 'rejected'])
+    .select('id, assigned_to')
+    .maybeSingle();
+
+  if (error) notice(returnPath, error.message, true);
+  if (!data) {
+    notice(
+      returnPath,
+      'Only pending, rework, or rejected tasks can be deleted.',
+      true,
+    );
+  }
+
+  revalidatePath(returnPath);
+  revalidatePath('/tasks');
+  revalidatePath(`/users/${data.assigned_to}`);
+  notice(returnPath, 'Task deleted successfully.');
 }
 
 export async function startReview(taskId: string, userId: string) {

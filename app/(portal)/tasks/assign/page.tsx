@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { ClipboardIcon } from '@/components/icons';
 import { PageHeader } from '@/components/page-header';
 import { SubmitButton } from '@/components/submit-button';
-import { taskStepRanges } from '@/lib/task-rates';
+import { TaskFormFields } from '@/components/task-form-fields';
+import { TaskRateAnnouncement } from '@/components/task-rate-announcement';
 import {
   fieldGridClass,
   inputClass,
@@ -40,6 +41,7 @@ export default async function AssignTaskPage({
         subtitle="Create a new assignment and select the worker to assign it to."
       />
       <Message notice={notice} error={error} />
+      <TaskRateAnnouncement />
       <section className={panelClass}>
         <div className="mb-6 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
@@ -61,71 +63,7 @@ export default async function AssignTaskPage({
               ))}
             </select>
           </label>
-          <label className={labelClass}>
-            Task ID
-            <input
-              className={inputClass}
-              name="external_task_id"
-              required
-              placeholder="TASK-002"
-            />
-          </label>
-          <label className={labelClass}>
-            URL
-            <input
-              className={inputClass}
-              name="task_url"
-              type="url"
-              required
-              placeholder="https://..."
-            />
-          </label>
-          <label className={labelClass}>
-            Expected steps
-            <select className={inputClass} name="step_range">
-              {taskStepRanges.map((r) => (
-                <option key={r}>{r}</option>
-              ))}
-            </select>
-          </label>
-          <label className={labelClass}>
-            Language
-            <input
-              className={inputClass}
-              name="task_language"
-              required
-              placeholder="Python"
-            />
-          </label>
-          <label className={labelClass}>
-            Application name
-            <input
-              className={inputClass}
-              name="application"
-              placeholder="Visual Studio Code"
-            />
-          </label>
-          <label className={labelClass}>
-            Fee (USD, optional override)
-            <input
-              className={inputClass}
-              name="fee"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Auto by expected steps"
-            />
-          </label>
-          <label className={`${labelClass} md:col-span-3`}>
-            Task prompt
-            <textarea
-              className={inputClass}
-              name="prompt"
-              rows={4}
-              required
-              placeholder="Describe the task and acceptance criteria."
-            />
-          </label>
+          <TaskFormFields />
           <div className="mt-2.5 flex gap-2.5">
             <SubmitButton label="Assign task" pendingLabel="Assigning..." />
             <Link href="/tasks" className={textButtonClass}>

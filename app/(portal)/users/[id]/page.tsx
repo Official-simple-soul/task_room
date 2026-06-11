@@ -1,6 +1,7 @@
 import {
   addTask,
   decideTask,
+  deleteTask,
   reassignTask,
   startReview,
   updateTask,
@@ -10,10 +11,11 @@ import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
 import { StatusPill } from '@/components/status-pill';
 import { SubmitButton } from '@/components/submit-button';
+import { TaskFormFields } from '@/components/task-form-fields';
 import { TaskPrompt } from '@/components/task-prompt';
+import { TaskRateAnnouncement } from '@/components/task-rate-announcement';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money } from '@/lib/format';
-import { taskStepRanges } from '@/lib/task-rates';
 import {
   actionsClass,
   buttonClass,
@@ -34,6 +36,8 @@ import {
   warningButtonClass,
 } from '@/lib/styles';
 import type { Task } from '@/lib/types';
+
+const deletableStatuses = ['pending', 'rework', 'rejected'];
 
 export default async function UserDetailsPage({
   params,
@@ -77,6 +81,7 @@ export default async function UserDetailsPage({
         subtitle={`${tasks.length} assignments | ${money(tasks.filter((task) => task.status === 'approved').reduce((sum, task) => sum + task.fee_cents, 0))} approved`}
       />
       <Message notice={notice} error={error} />
+      <TaskRateAnnouncement />
       <section className={panelClass}>
         <div className="mb-[1.15rem] flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
@@ -111,71 +116,7 @@ export default async function UserDetailsPage({
           </h2>
         </div>
         <form action={addTask.bind(null, id)} className={fieldGridClass}>
-          <label className={labelClass}>
-            Task ID
-            <input
-              className={inputClass}
-              name="external_task_id"
-              required
-              placeholder="TASK-002"
-            />
-          </label>
-          <label className={labelClass}>
-            URL
-            <input
-              className={inputClass}
-              name="task_url"
-              type="url"
-              required
-              placeholder="https://..."
-            />
-          </label>
-          <label className={labelClass}>
-            Expected steps
-            <select className={inputClass} name="step_range">
-              {taskStepRanges.map((range) => (
-                <option key={range}>{range}</option>
-              ))}
-            </select>
-          </label>
-          <label className={labelClass}>
-            Language
-            <input
-              className={inputClass}
-              name="task_language"
-              required
-              placeholder="Python"
-            />
-          </label>
-          <label className={labelClass}>
-            Application name
-            <input
-              className={inputClass}
-              name="application"
-              placeholder="Visual Studio Code"
-            />
-          </label>
-          <label className={labelClass}>
-            Fee (USD, optional override)
-            <input
-              className={inputClass}
-              name="fee"
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Auto by expected steps"
-            />
-          </label>
-          <label className={`${labelClass} md:col-span-3`}>
-            Task prompt
-            <textarea
-              className={inputClass}
-              name="prompt"
-              rows={4}
-              required
-              placeholder="Describe the task and acceptance criteria."
-            />
-          </label>
+          <TaskFormFields />
           <SubmitButton label="Assign task" pendingLabel="Assigning..." />
         </form>
       </section>
@@ -207,6 +148,9 @@ export default async function UserDetailsPage({
                     {money(task.fee_cents)} | {dateLabel(task.created_at)} |{' '}
                     {task.rework_count} reworks
                   </p>
+                  <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
+                    Final steps: {task.final_step_count ?? 'Not submitted yet'}
+                  </p>
                   {task.application && (
                     <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
                       Application: {task.application}
@@ -230,82 +174,7 @@ export default async function UserDetailsPage({
                       Edit task details
                     </h4>
                     <div className={fieldGridClass}>
-                      <label className={labelClass}>
-                        Task ID
-                        <input
-                          className={inputClass}
-                          name="external_task_id"
-                          required
-                          defaultValue={task.external_task_id}
-                        />
-                      </label>
-                      <label className={labelClass}>
-                        URL
-                        <input
-                          className={inputClass}
-                          name="task_url"
-                          type="url"
-                          required
-                          defaultValue={task.task_url ?? ''}
-                        />
-                      </label>
-                      <label className={labelClass}>
-                        Expected steps
-                        <select
-                          className={inputClass}
-                          name="step_range"
-                          defaultValue={task.step_range}
-                        >
-                          {[
-                            ...(taskStepRanges.includes(
-                              task.step_range as (typeof taskStepRanges)[number],
-                            )
-                              ? []
-                              : [task.step_range]),
-                            ...taskStepRanges,
-                          ].map((range) => (
-                            <option key={range}>{range}</option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className={labelClass}>
-                        Language
-                        <input
-                          className={inputClass}
-                          name="task_language"
-                          required
-                          defaultValue={task.task_language}
-                        />
-                      </label>
-                      <label className={labelClass}>
-                        Application name
-                        <input
-                          className={inputClass}
-                          name="application"
-                          defaultValue={task.application ?? ''}
-                        />
-                      </label>
-                      <label className={labelClass}>
-                        Fee (USD)
-                        <input
-                          className={inputClass}
-                          name="fee"
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          defaultValue={(task.fee_cents / 100).toFixed(2)}
-                        />
-                      </label>
-                      <label className={`${labelClass} md:col-span-3`}>
-                        Task prompt
-                        <textarea
-                          className={inputClass}
-                          name="prompt"
-                          rows={3}
-                          required
-                          defaultValue={task.prompt}
-                        />
-                      </label>
+                      <TaskFormFields defaults={task} promptRows={3} />
                       <SubmitButton
                         label="Save task changes"
                         pendingLabel="Saving task..."
@@ -319,7 +188,11 @@ export default async function UserDetailsPage({
                   action={reassignTask.bind(null, task.id)}
                   className="mt-4 grid gap-4 rounded-2xl border border-[#edf1ee] bg-white/90 p-4 shadow-[0_10px_30px_rgba(17,102,75,0.05)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
                 >
-                  <input type="hidden" name="return_path" value={`/users/${id}`} />
+                  <input
+                    type="hidden"
+                    name="return_path"
+                    value={`/users/${id}`}
+                  />
                   <label className={labelClass}>
                     Reassign pending task
                     <select
@@ -340,6 +213,23 @@ export default async function UserDetailsPage({
                     pendingLabel="Reassigning..."
                     baseClassName={secondaryButtonClass}
                     className="self-end justify-self-end"
+                  />
+                </form>
+              )}
+              {deletableStatuses.includes(task.status) && (
+                <form
+                  action={deleteTask.bind(null, task.id)}
+                  className={actionsClass}
+                >
+                  <input
+                    type="hidden"
+                    name="return_path"
+                    value={`/users/${id}`}
+                  />
+                  <SubmitButton
+                    label="Delete task"
+                    pendingLabel="Deleting..."
+                    className={dangerButtonClass}
                   />
                 </form>
               )}
