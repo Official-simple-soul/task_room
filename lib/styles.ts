@@ -15,7 +15,7 @@ export const warningButtonClass =
   'inline-flex w-fit cursor-pointer items-center justify-center rounded-[10px] border-0 bg-[#fff3df] px-[1.3rem] py-[0.85rem] text-[0.95rem] font-semibold text-[#a56308] transition hover:-translate-y-px active:translate-y-0';
 
 export const dangerButtonClass =
-  'inline-flex w-fit cursor-pointer items-center justify-center rounded-[10px] border-0 bg-[#fde9e9] px-[1.3rem] py-[0.85rem] text-[0.95rem] font-semibold text-[#ae3939] transition hover:-translate-y-px active:translate-y-0';
+  'inline-flex w-fit cursor-pointer items-center justify-center rounded-[10px] border-0 bg-[#fde9e9] hover:bg-red-800 px-[1.3rem] py-[0.85rem] text-[0.95rem] font-semibold text-[#ae3939] transition hover:-translate-y-px active:translate-y-0';
 
 export const textButtonClass =
   'cursor-pointer border-0 bg-transparent px-[0.9rem] py-[0.8rem] text-[#68766e]';

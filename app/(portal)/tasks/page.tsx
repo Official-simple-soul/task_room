@@ -14,6 +14,7 @@ import { StatusPill } from '@/components/status-pill';
 import { SubmitButton } from '@/components/submit-button';
 import { TaskPrompt } from '@/components/task-prompt';
 import { TaskRateAnnouncement } from '@/components/task-rate-announcement';
+import { TaskRulesSidebar } from '@/components/task-rules-sidebar';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money, statusLabels } from '@/lib/format';
 import {
@@ -270,6 +271,7 @@ function TaskList({
                   />
                 </form>
               )}
+              {actions(task)}
               {showAssignee && deletableStatuses.includes(task.status) && (
                 <form
                   action={deleteTask.bind(null, task.id)}
@@ -283,7 +285,6 @@ function TaskList({
                   />
                 </form>
               )}
-              {actions(task)}
             </div>
           </details>
         ))}
@@ -324,6 +325,7 @@ export default async function TasksPage({
 
     return (
       <>
+        <TaskRulesSidebar />
         <PageHeader
           eyebrow="Administration"
           title="Tasks"
@@ -389,6 +391,7 @@ export default async function TasksPage({
 
   return (
     <>
+      <TaskRulesSidebar />
       <PageHeader
         eyebrow="Work queue"
         title="Tasks"

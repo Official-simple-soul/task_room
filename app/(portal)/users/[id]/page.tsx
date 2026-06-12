@@ -216,6 +216,18 @@ export default async function UserDetailsPage({
                   />
                 </form>
               )}
+              {task.task_url ? (
+                <a
+                  className={taskLinkClass}
+                  href={task.task_url}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {task.task_url}
+                </a>
+              ) : (
+                <p className={hiddenUrlClass}>No task URL available.</p>
+              )}
               {deletableStatuses.includes(task.status) && (
                 <form
                   action={deleteTask.bind(null, task.id)}
@@ -232,18 +244,6 @@ export default async function UserDetailsPage({
                     className={dangerButtonClass}
                   />
                 </form>
-              )}
-              {task.task_url ? (
-                <a
-                  className={taskLinkClass}
-                  href={task.task_url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {task.task_url}
-                </a>
-              ) : (
-                <p className={hiddenUrlClass}>No task URL available.</p>
               )}
               {task.admin_comment && (
                 <div className={commentClass}>
