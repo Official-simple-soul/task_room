@@ -368,8 +368,21 @@ export default async function TasksPage({
             task.status === 'completed' ? (
               <form
                 action={startReview.bind(null, task.id, task.assigned_to)}
-                className={actionsClass}
+                className="mt-5 grid gap-3 rounded-2xl border border-[#edf1ee] bg-white/80 p-4 sm:grid-cols-[minmax(180px,260px)_auto] sm:items-end"
               >
+                <label className={labelClass}>
+                  Final step count
+                  <input
+                    className={inputClass}
+                    name="final_step_count"
+                    type="number"
+                    min="1"
+                    step="1"
+                    required
+                    defaultValue={task.final_step_count ?? ''}
+                    placeholder="Adjust if needed"
+                  />
+                </label>
                 <SubmitButton
                   label="Move to review"
                   pendingLabel="Moving to review..."

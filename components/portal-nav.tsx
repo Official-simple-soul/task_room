@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/styles';
 import {
+  CalendarIcon,
   ClipboardIcon,
   DashboardIcon,
   SettingsIcon,
@@ -32,6 +33,7 @@ export function PortalNav({ isAdmin }: PortalNavProps) {
       ? [
           { href: '/users', label: 'Users', icon: UsersIcon },
           { href: '/tasks', label: 'Tasks', icon: ClipboardIcon },
+          { href: '/records', label: 'Daily records', icon: CalendarIcon },
           { href: '/payments', label: 'Payments', icon: WalletIcon },
           { href: '/settings', label: 'Settings', icon: SettingsIcon },
         ]

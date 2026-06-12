@@ -44,6 +44,9 @@ const completeTaskSchema = z.object({
 const deleteTaskSchema = z.object({
   return_path: z.string().startsWith('/').default('/tasks'),
 });
+const startReviewSchema = z.object({
+  final_step_count: z.coerce.number().int().min(1).max(100000),
+});
 
 function notice(path: string, message: string, failed = false): never {
   redirect(
@@ -262,11 +265,27 @@ export async function deleteTask(taskId: string, formData: FormData) {
   notice(returnPath, 'Task deleted successfully.');
 }
 
-export async function startReview(taskId: string, userId: string) {
+export async function startReview(
+  taskId: string,
+  userId: string,
+  formData: FormData,
+) {
   const { supabase } = await requireProfile('admin');
+  const parsed = startReviewSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) {
+    notice(
+      `/users/${userId}`,
+      'Enter the final step count before moving this task to review.',
+      true,
+    );
+  }
+
   const { data, error } = await supabase
     .from('tasks')
-    .update({ status: 'under_review' })
+    .update({
+      status: 'under_review',
+      final_step_count: parsed.data.final_step_count,
+    })
     .eq('id', taskId)
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
     .maybeSingle();
@@ -275,6 +294,7 @@ export async function startReview(taskId: string, userId: string) {
   revalidatePath(`/users/${userId}`);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');
+  revalidatePath('/records');
   notice(`/users/${userId}`, 'Task is now under review.');
 }
 

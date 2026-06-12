@@ -35,6 +35,7 @@ export type Task = {
   created_at: string;
   claimed_at: string | null;
   completed_at: string | null;
+  review_started_at: string | null;
   reviewed_at: string | null;
 };
 
