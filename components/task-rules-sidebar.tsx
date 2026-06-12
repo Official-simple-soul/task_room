@@ -20,8 +20,8 @@ const guidelines = [
     body: 'Always verify your work by running the relevant command, test, build, or lint check after making changes.',
   },
   {
-    title: 'Push the repository after creating it',
-    body: 'If the task requires creating a repository, push it to the remote before submitting the task.',
+    title: 'Push the repository only when required',
+    body: 'If the task specifically requires a remote repository, push it before submitting. If a remote is not requested, this step is optional.',
   },
   {
     title: 'Review every event before submitting',
