@@ -388,6 +388,10 @@ export default async function TasksPage({
                   pendingLabel="Moving to review..."
                   className={buttonClass}
                 />
+                <p className="m-0 text-[0.82rem] leading-5 text-[#68766e] sm:col-span-2">
+                  The task fee will recalculate automatically from this final
+                  step count when moved to review.
+                </p>
               </form>
             ) : null
           }

@@ -6,7 +6,11 @@ import { after } from 'next/server';
 import { z } from 'zod';
 import { requireProfile } from '@/lib/auth';
 import { sendTaskEmail, type TaskEmailPayload } from '@/lib/email';
-import { acceptedTaskStepRanges, taskFeeCents } from '@/lib/task-rates';
+import {
+  acceptedTaskStepRanges,
+  taskFeeCents,
+  taskFeeCentsForStepCount,
+} from '@/lib/task-rates';
 
 type SupabaseClient = Awaited<ReturnType<typeof requireProfile>>['supabase'];
 type TaskEmailRow = {
@@ -285,6 +289,7 @@ export async function startReview(
     .update({
       status: 'under_review',
       final_step_count: parsed.data.final_step_count,
+      fee_cents: taskFeeCentsForStepCount(parsed.data.final_step_count),
     })
     .eq('id', taskId)
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')

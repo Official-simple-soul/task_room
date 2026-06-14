@@ -42,3 +42,15 @@ export function taskFeeCents(stepRange: string, fee?: number) {
   if (typeof fee === 'number') return Math.round(fee * 100);
   return taskRateCents[stepRange] ?? 300;
 }
+
+export function taskStepRangeForCount(stepCount: number) {
+  if (stepCount <= 25) return '10-25';
+  if (stepCount <= 50) return '26-50';
+  if (stepCount <= 75) return '51-75';
+  if (stepCount <= 130) return '76-130';
+  return '130-200';
+}
+
+export function taskFeeCentsForStepCount(stepCount: number) {
+  return taskRateCents[taskStepRangeForCount(stepCount)] ?? 300;
+}

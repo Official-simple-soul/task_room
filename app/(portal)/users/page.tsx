@@ -1,9 +1,13 @@
 import Link from 'next/link';
+import { deleteUser } from '@/app/actions/users';
 import { UsersIcon } from '@/components/icons';
+import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
+import { SubmitButton } from '@/components/submit-button';
 import { requireProfile } from '@/lib/auth';
 import { money } from '@/lib/format';
 import {
+  dangerButtonClass,
   emptyClass,
   panelClass,
   tableClass,
@@ -11,8 +15,13 @@ import {
   thClass,
 } from '@/lib/styles';
 
-export default async function UsersPage() {
+export default async function UsersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string; error?: string }>;
+}) {
   const { supabase } = await requireProfile('admin');
+  const { notice, error } = await searchParams;
   const [{ data: users }, { data: tasks }] = await Promise.all([
     supabase
       .from('profiles')
@@ -29,6 +38,7 @@ export default async function UsersPage() {
         title="Users"
         subtitle="Manage worker accounts and review task progress from each user profile."
       />
+      <Message notice={notice} error={error} />
       <section className={`${panelClass} overflow-x-auto`}>
         <div className="mb-[1.15rem] flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
@@ -70,12 +80,38 @@ export default async function UsersPage() {
                     )}
                   </td>
                   <td className={tdClass}>
-                    <Link
-                      className="text-[0.9rem] font-semibold text-[#11664b]"
-                      href={`/users/${user.id}`}
-                    >
-                      Open user
-                    </Link>
+                    <div className="flex flex-wrap items-center justify-end gap-3">
+                      <Link
+                        className="text-[0.9rem] font-semibold text-[#11664b]"
+                        href={`/users/${user.id}`}
+                      >
+                        Open user
+                      </Link>
+                      <details className="relative">
+                        <summary className="cursor-pointer list-none text-[0.9rem] font-semibold text-[#ae3939] [&::-webkit-details-marker]:hidden">
+                          Delete
+                        </summary>
+                        <div className="absolute right-0 z-20 mt-2 w-[260px] rounded-2xl border border-[#f2c9c9] bg-white p-4 text-left shadow-[0_18px_45px_rgba(22,34,29,0.14)]">
+                          <p className="m-0 text-[0.88rem] leading-5 text-[#5e4826]">
+                            Delete this worker account and its related worker
+                            records. This cannot be undone.
+                          </p>
+                          <form action={deleteUser} className="mt-3">
+                            <input
+                              type="hidden"
+                              name="user_id"
+                              value={user.id}
+                            />
+                            <SubmitButton
+                              label="Confirm delete"
+                              pendingLabel="Deleting..."
+                              className="w-full"
+                              baseClassName={dangerButtonClass}
+                            />
+                          </form>
+                        </div>
+                      </details>
+                    </div>
                   </td>
                 </tr>
               );
