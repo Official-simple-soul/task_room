@@ -44,6 +44,24 @@ export async function deleteUser(formData: FormData) {
     notice('User deletion is not configured. Add SUPABASE_SERVICE_ROLE_KEY.', true);
   }
 
+  const { error: historyError } = await adminClient
+    .from('task_status_history')
+    .update({ changed_by: null })
+    .eq('changed_by', userId);
+  if (historyError) notice(historyError.message, true);
+
+  const { error: paymentsError } = await adminClient
+    .from('monthly_payments')
+    .delete()
+    .eq('user_id', userId);
+  if (paymentsError) notice(paymentsError.message, true);
+
+  const { error: tasksError } = await adminClient
+    .from('tasks')
+    .delete()
+    .eq('assigned_to', userId);
+  if (tasksError) notice(tasksError.message, true);
+
   const { error } = await adminClient.auth.admin.deleteUser(userId);
   if (error) notice(error.message, true);
 
