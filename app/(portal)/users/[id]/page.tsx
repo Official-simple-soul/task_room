@@ -3,6 +3,7 @@ import {
   decideTask,
   deleteTask,
   reassignTask,
+  revertTaskApproval,
   startReview,
   updateTask,
 } from '@/app/actions/tasks';
@@ -298,6 +299,7 @@ export default async function UserDetailsPage({
                       className={buttonClass}
                       name="status"
                       value="approved"
+                      confirmMessage={`Approve task ${task.external_task_id}? This will add the task fee to the worker's earnings.`}
                     />
                     <SubmitButton
                       label="Request rework"
@@ -314,6 +316,19 @@ export default async function UserDetailsPage({
                       value="rejected"
                     />
                   </div>
+                </form>
+              )}
+              {task.status === 'approved' && (
+                <form
+                  action={revertTaskApproval.bind(null, task.id, id)}
+                  className={actionsClass}
+                >
+                  <SubmitButton
+                    label="Revert approval"
+                    pendingLabel="Reverting..."
+                    baseClassName={secondaryButtonClass}
+                    confirmMessage={`Revert approval for task ${task.external_task_id}? It will move back to under review.`}
+                  />
                 </form>
               )}
             </article>

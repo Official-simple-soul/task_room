@@ -9,7 +9,9 @@ export function SubmitButton({
   pendingLabel,
   baseClassName = buttonClass,
   className,
+  confirmMessage,
   disabled,
+  onClick,
   type,
   ...props
 }: {
@@ -17,6 +19,7 @@ export function SubmitButton({
   pendingLabel: string;
   baseClassName?: string;
   className?: string;
+  confirmMessage?: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const { pending } = useFormStatus();
   const isDisabled = pending || disabled;
@@ -31,6 +34,14 @@ export function SubmitButton({
       type={type ?? 'submit'}
       disabled={isDisabled}
       aria-disabled={isDisabled}
+      onClick={(event) => {
+        if (confirmMessage && !window.confirm(confirmMessage)) {
+          event.preventDefault();
+          return;
+        }
+
+        onClick?.(event);
+      }}
       {...props}
     >
       {pending ? (

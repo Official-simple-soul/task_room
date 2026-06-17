@@ -50,6 +50,27 @@ const deleteTaskSchema = z.object({
 });
 const startReviewSchema = z.object({
   final_step_count: z.coerce.number().int().min(1).max(100000),
+  return_path: z
+    .string()
+    .startsWith('/')
+    .optional()
+    .transform((value) => value ?? ''),
+});
+const decideTaskSchema = z.object({
+  status: z.enum(['approved', 'rework', 'rejected']),
+  admin_comment: z.string().trim().optional(),
+  return_path: z
+    .string()
+    .startsWith('/')
+    .optional()
+    .transform((value) => value ?? ''),
+});
+const revertApprovalSchema = z.object({
+  return_path: z
+    .string()
+    .startsWith('/')
+    .optional()
+    .transform((value) => value ?? ''),
 });
 
 function notice(path: string, message: string, failed = false): never {
@@ -276,9 +297,12 @@ export async function startReview(
 ) {
   const { supabase } = await requireProfile('admin');
   const parsed = startReviewSchema.safeParse(Object.fromEntries(formData));
+  const returnPath = parsed.success && parsed.data.return_path
+    ? parsed.data.return_path
+    : `/users/${userId}`;
   if (!parsed.success) {
     notice(
-      `/users/${userId}`,
+      returnPath,
       'Enter the final step count before moving this task to review.',
       true,
     );
@@ -294,13 +318,13 @@ export async function startReview(
     .eq('id', taskId)
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
     .maybeSingle();
-  if (error) notice(`/users/${userId}`, error.message, true);
+  if (error) notice(returnPath, error.message, true);
   queueTaskEmail(supabase, data, 'under_review');
   revalidatePath(`/users/${userId}`);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');
   revalidatePath('/records');
-  notice(`/users/${userId}`, 'Task is now under review.');
+  notice(returnPath, 'Task is now under review.');
 }
 
 export async function decideTask(
@@ -309,13 +333,20 @@ export async function decideTask(
   formData: FormData,
 ) {
   const { supabase } = await requireProfile('admin');
-  const status = z
-    .enum(['approved', 'rework', 'rejected'])
-    .parse(formData.get('status'));
-  const comment = String(formData.get('admin_comment') ?? '').trim() || null;
+  const parsed = decideTaskSchema.safeParse(Object.fromEntries(formData));
+  const returnPath = parsed.success && parsed.data.return_path
+    ? parsed.data.return_path
+    : `/users/${userId}`;
+
+  if (!parsed.success) {
+    notice(returnPath, 'Please provide a valid review decision.', true);
+  }
+
+  const status = parsed.data.status;
+  const comment = parsed.data.admin_comment || null;
   if (status === 'rework' && !comment) {
     notice(
-      `/users/${userId}`,
+      returnPath,
       'Add a comment explaining the requested rework.',
       true,
     );
@@ -327,12 +358,43 @@ export async function decideTask(
     .eq('id', taskId)
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
     .maybeSingle();
-  if (error) notice(`/users/${userId}`, error.message, true);
+  if (error) notice(returnPath, error.message, true);
   queueTaskEmail(supabase, data, status, comment);
   revalidatePath(`/users/${userId}`);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');
   revalidatePath('/leaderboard');
   revalidatePath('/payments');
-  notice(`/users/${userId}`, `Task marked ${status.replace('_', ' ')}.`);
+  notice(returnPath, `Task marked ${status.replace('_', ' ')}.`);
+}
+
+export async function revertTaskApproval(
+  taskId: string,
+  userId: string,
+  formData: FormData,
+) {
+  const { supabase } = await requireProfile('admin');
+  const parsed = revertApprovalSchema.safeParse(Object.fromEntries(formData));
+  const returnPath = parsed.success && parsed.data.return_path
+    ? parsed.data.return_path
+    : `/users/${userId}`;
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ status: 'under_review', admin_comment: null })
+    .eq('id', taskId)
+    .eq('status', 'approved')
+    .select('id')
+    .maybeSingle();
+
+  if (error) notice(returnPath, error.message, true);
+  if (!data) notice(returnPath, 'Only approved tasks can be reverted.', true);
+
+  revalidatePath(`/users/${userId}`);
+  revalidatePath('/tasks');
+  revalidatePath('/dashboard');
+  revalidatePath('/leaderboard');
+  revalidatePath('/payments');
+  revalidatePath('/records');
+  notice(returnPath, 'Approval reverted. Task is back under review.');
 }

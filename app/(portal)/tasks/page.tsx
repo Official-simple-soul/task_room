@@ -3,8 +3,10 @@ import Link from 'next/link';
 import {
   claimTask,
   completeTask,
+  decideTask,
   deleteTask,
   reassignTask,
+  revertTaskApproval,
   startReview,
 } from '@/app/actions/tasks';
 import { ClipboardIcon, PlusIcon } from '@/components/icons';
@@ -33,6 +35,7 @@ import {
   statusBorderClass,
   taskLinkClass,
   taskMetaClass,
+  warningButtonClass,
 } from '@/lib/styles';
 import type { Task, TaskStatus } from '@/lib/types';
 
@@ -370,6 +373,7 @@ export default async function TasksPage({
                 action={startReview.bind(null, task.id, task.assigned_to)}
                 className="mt-5 grid gap-3 rounded-2xl border border-[#edf1ee] bg-white/80 p-4 sm:grid-cols-[minmax(180px,260px)_auto] sm:items-end"
               >
+                <input type="hidden" name="return_path" value="/tasks" />
                 <label className={labelClass}>
                   Final step count
                   <input
@@ -392,6 +396,56 @@ export default async function TasksPage({
                   The task fee will recalculate automatically from this final
                   step count when moved to review.
                 </p>
+              </form>
+            ) : task.status === 'under_review' ? (
+              <form
+                action={decideTask.bind(null, task.id, task.assigned_to)}
+                className="mt-5 rounded-2xl border border-[#edf1ee] bg-white/80 p-4"
+              >
+                <input type="hidden" name="return_path" value="/tasks" />
+                <textarea
+                  className={inputClass}
+                  name="admin_comment"
+                  rows={2}
+                  placeholder="Feedback required for rework; optional otherwise."
+                />
+                <div className={actionsClass}>
+                  <SubmitButton
+                    label="Approve"
+                    pendingLabel="Approving..."
+                    className={buttonClass}
+                    name="status"
+                    value="approved"
+                    confirmMessage={`Approve task ${task.external_task_id}? This will add the task fee to the worker's earnings.`}
+                  />
+                  <SubmitButton
+                    label="Request rework"
+                    pendingLabel="Requesting..."
+                    className={warningButtonClass}
+                    name="status"
+                    value="rework"
+                  />
+                  <SubmitButton
+                    label="Reject"
+                    pendingLabel="Rejecting..."
+                    className={dangerButtonClass}
+                    name="status"
+                    value="rejected"
+                  />
+                </div>
+              </form>
+            ) : task.status === 'approved' ? (
+              <form
+                action={revertTaskApproval.bind(null, task.id, task.assigned_to)}
+                className={actionsClass}
+              >
+                <input type="hidden" name="return_path" value="/tasks" />
+                <SubmitButton
+                  label="Revert approval"
+                  pendingLabel="Reverting..."
+                  baseClassName={secondaryButtonClass}
+                  confirmMessage={`Revert approval for task ${task.external_task_id}? It will move back to under review.`}
+                />
               </form>
             ) : null
           }
