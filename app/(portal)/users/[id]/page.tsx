@@ -17,6 +17,7 @@ import { TaskPrompt } from '@/components/task-prompt';
 import { TaskRateAnnouncement } from '@/components/task-rate-announcement';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money } from '@/lib/format';
+import { getActiveProjects } from '@/lib/projects';
 import {
   actionsClass,
   buttonClass,
@@ -50,7 +51,8 @@ export default async function UserDetailsPage({
   const { id } = await params;
   const { notice, error } = await searchParams;
   const { supabase } = await requireProfile('admin');
-  const [{ data: user }, { data }, { data: usersData }] = await Promise.all([
+  const [{ data: user }, { data }, { data: usersData }, projects] =
+    await Promise.all([
     supabase
       .from('profiles')
       .select(
@@ -69,6 +71,7 @@ export default async function UserDetailsPage({
       .select('id, full_name')
       .eq('role', 'user')
       .order('full_name'),
+    getActiveProjects(supabase),
   ]);
   if (!user) return <p>User not found.</p>;
   const tasks = (data ?? []) as Task[];
@@ -82,7 +85,7 @@ export default async function UserDetailsPage({
         subtitle={`${tasks.length} assignments | ${money(tasks.filter((task) => task.status === 'approved').reduce((sum, task) => sum + task.fee_cents, 0))} approved`}
       />
       <Message notice={notice} error={error} />
-      <TaskRateAnnouncement />
+      <TaskRateAnnouncement project={projects[0]} />
       <section className={panelClass}>
         <div className="mb-[1.15rem] flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
@@ -117,7 +120,7 @@ export default async function UserDetailsPage({
           </h2>
         </div>
         <form action={addTask.bind(null, id)} className={fieldGridClass}>
-          <TaskFormFields />
+          <TaskFormFields projects={projects} />
           <SubmitButton label="Assign task" pendingLabel="Assigning..." />
         </form>
       </section>
@@ -175,7 +178,11 @@ export default async function UserDetailsPage({
                       Edit task details
                     </h4>
                     <div className={fieldGridClass}>
-                      <TaskFormFields defaults={task} promptRows={3} />
+                      <TaskFormFields
+                        defaults={task}
+                        projects={projects}
+                        promptRows={3}
+                      />
                       <SubmitButton
                         label="Save task changes"
                         pendingLabel="Saving task..."

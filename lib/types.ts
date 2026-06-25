@@ -18,10 +18,37 @@ export type Profile = {
   payment_account_name?: string | null;
 };
 
+export type ProjectStatus = 'in_progress' | 'paused' | 'closed';
+
+export type ProjectBucket = {
+  id: string;
+  project_id: string;
+  label: string;
+  min_steps: number;
+  max_steps: number;
+  fee_cents: number;
+  sort_order: number;
+};
+
+export type Project = {
+  id: string;
+  name: string;
+  slug: string;
+  logo_url: string | null;
+  description: string | null;
+  status: ProjectStatus;
+  project_task_buckets?: ProjectBucket[];
+};
+
 export type Task = {
   id: string;
   external_task_id: string;
   assigned_to: string;
+  project_id: string;
+  task_bucket_id: string | null;
+  project_name?: string | null;
+  project_slug?: string | null;
+  bucket_label?: string | null;
   task_url: string | null;
   step_range: string;
   task_language: string;

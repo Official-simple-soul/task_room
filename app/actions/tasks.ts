@@ -7,10 +7,11 @@ import { z } from 'zod';
 import { requireProfile } from '@/lib/auth';
 import { sendTaskEmail, type TaskEmailPayload } from '@/lib/email';
 import {
-  acceptedTaskStepRanges,
-  taskFeeCents,
-  taskFeeCentsForStepCount,
-} from '@/lib/task-rates';
+  bucketForStepCount,
+  compatibleStepRangeForBucket,
+  feeCentsFromDollars,
+} from '@/lib/projects';
+import type { ProjectBucket } from '@/lib/types';
 
 type SupabaseClient = Awaited<ReturnType<typeof requireProfile>>['supabase'];
 type TaskEmailRow = {
@@ -24,7 +25,9 @@ type TaskEmailRow = {
 const taskSchema = z.object({
   external_task_id: z.string().trim().min(1).max(80),
   task_url: z.url(),
-  step_range: z.enum(acceptedTaskStepRanges),
+  project_id: z.uuid(),
+  task_bucket_id: z.uuid(),
+  step_range: z.string().trim().optional(),
   task_language: z.string().trim().min(1).max(60),
   application: z
     .string()
@@ -77,6 +80,69 @@ function notice(path: string, message: string, failed = false): never {
   redirect(
     `${path}?${failed ? 'error' : 'notice'}=${encodeURIComponent(message)}`,
   );
+}
+
+async function loadTaskBucket(
+  supabase: SupabaseClient,
+  bucketId: string,
+  projectId?: string,
+) {
+  let query = supabase
+    .from('project_task_buckets')
+    .select('id, project_id, label, min_steps, max_steps, fee_cents, sort_order')
+    .eq('id', bucketId);
+
+  if (projectId) query = query.eq('project_id', projectId);
+
+  const { data, error } = await query.maybeSingle();
+  if (error) throw new Error(error.message);
+  return data as ProjectBucket | null;
+}
+
+function taskPayloadFromBucket(
+  task: z.infer<typeof taskSchema>,
+  bucket: ProjectBucket,
+) {
+  return {
+    project_id: bucket.project_id,
+    task_bucket_id: bucket.id,
+    step_range: compatibleStepRangeForBucket(bucket),
+    fee_cents: feeCentsFromDollars(task.fee, bucket.fee_cents),
+  };
+}
+
+async function reviewPricingForTask(
+  supabase: SupabaseClient,
+  taskId: string,
+  finalStepCount: number,
+) {
+  const { data: task, error: taskError } = await supabase
+    .from('tasks')
+    .select('project_id')
+    .eq('id', taskId)
+    .maybeSingle();
+  if (taskError) throw new Error(taskError.message);
+  if (!task?.project_id) throw new Error('Task project was not found.');
+
+  const { data: buckets, error: bucketError } = await supabase
+    .from('project_task_buckets')
+    .select('id, project_id, label, min_steps, max_steps, fee_cents, sort_order')
+    .eq('project_id', task.project_id);
+  if (bucketError) throw new Error(bucketError.message);
+
+  const bucket = bucketForStepCount(
+    (buckets ?? []) as ProjectBucket[],
+    finalStepCount,
+  );
+  if (!bucket) {
+    throw new Error('No payment bucket matches the final step count.');
+  }
+
+  return {
+    task_bucket_id: bucket.id,
+    step_range: compatibleStepRangeForBucket(bucket),
+    fee_cents: bucket.fee_cents,
+  };
 }
 
 function queueTaskEmail(
@@ -140,6 +206,12 @@ export async function addTask(userId: string, formData: FormData) {
   if (!parsed.success) notice(path, 'Please provide valid task details.', true);
 
   const task = parsed.data;
+  const bucket = await loadTaskBucket(
+    supabase,
+    task.task_bucket_id,
+    task.project_id,
+  );
+  if (!bucket) notice(path, 'Please select a valid project step bucket.', true);
   const { data, error } = await supabase
     .from('tasks')
     .insert({
@@ -147,11 +219,10 @@ export async function addTask(userId: string, formData: FormData) {
       created_by: profile.id,
       external_task_id: task.external_task_id,
       task_url: task.task_url,
-      step_range: task.step_range,
       task_language: task.task_language,
       application: task.application,
       prompt: task.prompt,
-      fee_cents: taskFeeCents(task.step_range, task.fee),
+      ...taskPayloadFromBucket(task, bucket),
     })
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
     .single();
@@ -166,10 +237,16 @@ export async function addTask(userId: string, formData: FormData) {
 export async function addTaskGlobal(formData: FormData) {
   const { supabase, profile } = await requireProfile('admin');
   const parsed = taskSchema.safeParse(Object.fromEntries(formData));
-  const path = `/tasks`;
+  const path = String(formData.get('return_path') ?? '/tasks');
   if (!parsed.success) notice(path, 'Please provide valid task details.', true);
 
   const task = parsed.data;
+  const bucket = await loadTaskBucket(
+    supabase,
+    task.task_bucket_id,
+    task.project_id,
+  );
+  if (!bucket) notice(path, 'Please select a valid project step bucket.', true);
   const assigned_to = String(formData.get('assigned_to') ?? '').trim();
   if (!assigned_to)
     notice(path, 'Please select a user to assign this task to.', true);
@@ -181,11 +258,10 @@ export async function addTaskGlobal(formData: FormData) {
       created_by: profile.id,
       external_task_id: task.external_task_id,
       task_url: task.task_url,
-      step_range: task.step_range,
       task_language: task.task_language,
       application: task.application,
       prompt: task.prompt,
-      fee_cents: taskFeeCents(task.step_range, task.fee),
+      ...taskPayloadFromBucket(task, bucket),
     })
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
     .single();
@@ -208,16 +284,21 @@ export async function updateTask(
   if (!parsed.success) notice(path, 'Please provide valid task details.', true);
 
   const task = parsed.data;
+  const bucket = await loadTaskBucket(
+    supabase,
+    task.task_bucket_id,
+    task.project_id,
+  );
+  if (!bucket) notice(path, 'Please select a valid project step bucket.', true);
   const { data, error } = await supabase
     .from('tasks')
     .update({
       external_task_id: task.external_task_id,
       task_url: task.task_url,
-      step_range: task.step_range,
       task_language: task.task_language,
       application: task.application,
       prompt: task.prompt,
-      fee_cents: taskFeeCents(task.step_range, task.fee),
+      ...taskPayloadFromBucket(task, bucket),
     })
     .eq('id', taskId)
     .neq('status', 'approved')
@@ -308,12 +389,29 @@ export async function startReview(
     );
   }
 
+  let pricing;
+  try {
+    pricing = await reviewPricingForTask(
+      supabase,
+      taskId,
+      parsed.data.final_step_count,
+    );
+  } catch (pricingError) {
+    notice(
+      returnPath,
+      pricingError instanceof Error
+        ? pricingError.message
+        : 'Unable to calculate the task fee.',
+      true,
+    );
+  }
+
   const { data, error } = await supabase
     .from('tasks')
     .update({
       status: 'under_review',
       final_step_count: parsed.data.final_step_count,
-      fee_cents: taskFeeCentsForStepCount(parsed.data.final_step_count),
+      ...pricing,
     })
     .eq('id', taskId)
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')

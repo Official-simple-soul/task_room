@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/page-header';
 import { SubmitButton } from '@/components/submit-button';
 import { TaskFormFields } from '@/components/task-form-fields';
 import { TaskRateAnnouncement } from '@/components/task-rate-announcement';
+import { findProjectBySlug, getActiveProjects } from '@/lib/projects';
 import {
   fieldGridClass,
   inputClass,
@@ -23,15 +24,22 @@ type UserOption = {
 export default async function AssignTaskPage({
   searchParams,
 }: {
-  searchParams: Promise<{ notice?: string; error?: string }>;
+  searchParams: Promise<{ notice?: string; error?: string; project?: string }>;
 }) {
   const { supabase } = await requireProfile('admin');
-  const { notice, error } = await searchParams;
-  const { data: users } = await supabase
-    .from('profiles')
-    .select('id, full_name')
-    .eq('role', 'user')
-    .order('full_name');
+  const { notice, error, project } = await searchParams;
+  const [{ data: users }, projects] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name')
+      .eq('role', 'user')
+      .order('full_name'),
+    getActiveProjects(supabase),
+  ]);
+  const selectedProject = findProjectBySlug(projects, project);
+  const tasksPath = selectedProject
+    ? `/tasks?project=${encodeURIComponent(selectedProject.slug)}`
+    : '/tasks';
 
   return (
     <>
@@ -41,7 +49,7 @@ export default async function AssignTaskPage({
         subtitle="Create a new assignment and select the worker to assign it to."
       />
       <Message notice={notice} error={error} />
-      <TaskRateAnnouncement />
+      <TaskRateAnnouncement project={selectedProject} />
       <section className={panelClass}>
         <div className="mb-6 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
@@ -52,6 +60,7 @@ export default async function AssignTaskPage({
           </h2>
         </div>
         <form action={addTaskGlobal} className={fieldGridClass}>
+          <input type="hidden" name="return_path" value={tasksPath} />
           <label className={labelClass}>
             Assign to
             <select className={inputClass} name="assigned_to" required>
@@ -63,10 +72,13 @@ export default async function AssignTaskPage({
               ))}
             </select>
           </label>
-          <TaskFormFields />
+          <TaskFormFields
+            projects={projects}
+            defaultProjectId={selectedProject?.id}
+          />
           <div className="mt-2.5 flex gap-2.5">
             <SubmitButton label="Assign task" pendingLabel="Assigning..." />
-            <Link href="/tasks" className={textButtonClass}>
+            <Link href={tasksPath} className={textButtonClass}>
               Back to tasks
             </Link>
           </div>

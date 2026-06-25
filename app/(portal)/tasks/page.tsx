@@ -19,6 +19,7 @@ import { TaskRateAnnouncement } from '@/components/task-rate-announcement';
 import { TaskRulesSidebar } from '@/components/task-rules-sidebar';
 import { requireProfile } from '@/lib/auth';
 import { dateLabel, money, statusLabels } from '@/lib/format';
+import { findProjectBySlug, getActiveProjects } from '@/lib/projects';
 import {
   actionsClass,
   buttonClass,
@@ -64,17 +65,27 @@ function selectedStatus(status?: string): TaskStatus | undefined {
 function TaskStatusFilter({
   status,
   tasks,
+  projectSlug,
 }: {
   status?: TaskStatus;
   tasks: Task[];
+  projectSlug?: string;
 }) {
+  const projectQuery = projectSlug ? `project=${encodeURIComponent(projectSlug)}` : '';
+  const hrefForStatus = (nextStatus?: TaskStatus) => {
+    const params = new URLSearchParams(projectQuery);
+    if (nextStatus) params.set('status', nextStatus);
+    const query = params.toString();
+    return query ? `/tasks?${query}` : '/tasks';
+  };
+
   return (
     <nav
       className="my-4 mb-[1.4rem] flex flex-wrap gap-3 rounded-2xl border border-[rgba(17,102,75,0.12)] bg-[rgba(17,102,75,0.08)] p-[0.95rem]"
       aria-label="Filter tasks by status"
     >
       <Link
-        href="/tasks"
+        href={hrefForStatus()}
         className={cn(
           'inline-flex items-center gap-[0.55rem] rounded-full border px-4 py-3 text-[0.9rem] font-semibold transition hover:-translate-y-px hover:border-[rgba(17,102,75,0.15)]',
           !status
@@ -96,7 +107,7 @@ function TaskStatusFilter({
       </Link>
       {filterStatuses.map((option) => (
         <Link
-          href={`/tasks?status=${option}`}
+          href={hrefForStatus(option)}
           className={cn(
             'inline-flex items-center gap-[0.55rem] rounded-full border px-4 py-3 text-[0.9rem] font-semibold transition hover:-translate-y-px hover:border-[rgba(17,102,75,0.15)]',
             status === option
@@ -299,17 +310,29 @@ function TaskList({
 export default async function TasksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ notice?: string; error?: string; status?: string }>;
+  searchParams: Promise<{
+    notice?: string;
+    error?: string;
+    status?: string;
+    project?: string;
+  }>;
 }) {
   const { supabase, profile } = await requireProfile();
-  const { notice, error, status } = await searchParams;
+  const { notice, error, status, project } = await searchParams;
   const activeStatus = selectedStatus(status);
+  const projects = await getActiveProjects(supabase);
+  const selectedProject = findProjectBySlug(projects, project);
+  const projectSlug = selectedProject?.slug;
+  const tasksPath = projectSlug
+    ? `/tasks?project=${encodeURIComponent(projectSlug)}`
+    : '/tasks';
 
   if (profile.role === 'admin') {
     const [{ data }, { data: usersData }] = await Promise.all([
       supabase
         .from('tasks')
         .select('*')
+        .eq('project_id', selectedProject?.id ?? '')
         .order('created_at', { ascending: false }),
       supabase
         .from('profiles')
@@ -332,11 +355,15 @@ export default async function TasksPage({
         <PageHeader
           eyebrow="Administration"
           title="Tasks"
-          subtitle="A compact list for scanning large task volumes. Open a row to view details and actions."
+          subtitle={`A compact list for ${selectedProject?.name ?? 'the selected project'}. Open a row to view details and actions.`}
         />
         <Message notice={notice} error={error} />
-        <TaskRateAnnouncement />
-        <TaskStatusFilter status={activeStatus} tasks={tasks} />
+        <TaskRateAnnouncement project={selectedProject} />
+        <TaskStatusFilter
+          status={activeStatus}
+          tasks={tasks}
+          projectSlug={projectSlug}
+        />
         <section className="my-6 flex flex-col gap-5 rounded-[14px] border border-[rgba(17,102,75,0.14)] bg-[linear-gradient(135deg,rgba(231,243,237,0.9)_0%,rgba(255,255,255,0.95)_100%)] p-[1.8rem] shadow-[0_2px_8px_rgba(22,34,29,0.04)] sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className={eyebrowClass}>Task summary</p>
@@ -353,7 +380,14 @@ export default async function TasksPage({
               and available review actions.
             </p>
           </div>
-          <Link href="/tasks/assign" className={buttonClass}>
+          <Link
+            href={
+              projectSlug
+                ? `/tasks/assign?project=${encodeURIComponent(projectSlug)}`
+                : '/tasks/assign'
+            }
+            className={buttonClass}
+          >
             <PlusIcon className="mr-2 h-4 w-4" />
             Assign task
           </Link>
@@ -363,7 +397,7 @@ export default async function TasksPage({
           showAssignee
           users={users}
           assigneeNames={assigneeNames}
-          returnPath="/tasks"
+          returnPath={tasksPath}
           emptyMessage={`No ${
             activeStatus ? statusLabels[activeStatus].toLowerCase() : ''
           } tasks found.`}
@@ -373,7 +407,7 @@ export default async function TasksPage({
                 action={startReview.bind(null, task.id, task.assigned_to)}
                 className="mt-5 grid gap-3 rounded-2xl border border-[#edf1ee] bg-white/80 p-4 sm:grid-cols-[minmax(180px,260px)_auto] sm:items-end"
               >
-                <input type="hidden" name="return_path" value="/tasks" />
+                <input type="hidden" name="return_path" value={tasksPath} />
                 <label className={labelClass}>
                   Final step count
                   <input
@@ -402,7 +436,7 @@ export default async function TasksPage({
                 action={decideTask.bind(null, task.id, task.assigned_to)}
                 className="mt-5 rounded-2xl border border-[#edf1ee] bg-white/80 p-4"
               >
-                <input type="hidden" name="return_path" value="/tasks" />
+                <input type="hidden" name="return_path" value={tasksPath} />
                 <textarea
                   className={inputClass}
                   name="admin_comment"
@@ -439,7 +473,7 @@ export default async function TasksPage({
                 action={revertTaskApproval.bind(null, task.id, task.assigned_to)}
                 className={actionsClass}
               >
-                <input type="hidden" name="return_path" value="/tasks" />
+                <input type="hidden" name="return_path" value={tasksPath} />
                 <SubmitButton
                   label="Revert approval"
                   pendingLabel="Reverting..."
@@ -455,7 +489,9 @@ export default async function TasksPage({
   }
 
   const { data } = await supabase.rpc('get_my_tasks');
-  const tasks = (data ?? []) as Task[];
+  const tasks = ((data ?? []) as Task[]).filter((task) =>
+    selectedProject ? task.project_id === selectedProject.id : true,
+  );
   const displayedTasks = activeStatus
     ? tasks.filter((task) => task.status === activeStatus)
     : tasks;
@@ -466,16 +502,20 @@ export default async function TasksPage({
       <PageHeader
         eyebrow="Work queue"
         title="Tasks"
-        subtitle="A slim list of your assignments. Open a row to view the full prompt, URL, and actions."
+        subtitle={`A slim list for ${selectedProject?.name ?? 'the selected project'}. Open a row to view the full prompt, URL, and actions.`}
       />
       <Message notice={notice} error={error} />
-      <TaskRateAnnouncement />
+      <TaskRateAnnouncement project={selectedProject} />
       <section className="mb-5 rounded-2xl border border-[#f3d79d] bg-[#fff8ea] px-4 py-3 text-[0.92rem] leading-6 text-[#6a4a12]">
         <strong className="text-[#9a6408]">Quality reminder:</strong> tasks sent
         back for rework more than once may have their fee reduced. Review the
         prompt carefully before submitting.
       </section>
-      <TaskStatusFilter status={activeStatus} tasks={tasks} />
+      <TaskStatusFilter
+        status={activeStatus}
+        tasks={tasks}
+        projectSlug={projectSlug}
+      />
       <TaskList
         tasks={displayedTasks}
         emptyMessage={

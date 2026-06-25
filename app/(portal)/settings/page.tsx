@@ -12,9 +12,18 @@ export default async function SettingsPage({
 }: {
   searchParams: Promise<{ notice?: string; error?: string }>;
 }) {
-  const { profile } = await requireProfile();
+  const { supabase, profile } = await requireProfile();
   const { notice, error } = await searchParams;
   const isWorker = profile.role === 'user';
+  const { data: paymentProfile } = isWorker
+    ? await supabase
+        .from('profiles')
+        .select(
+          'payment_bank_name, payment_account_number, payment_account_name',
+        )
+        .eq('id', profile.id)
+        .maybeSingle()
+    : { data: null };
 
   return (
     <>
@@ -45,7 +54,7 @@ export default async function SettingsPage({
               <input
                 className={inputClass}
                 name="payment_bank_name"
-                defaultValue={profile.payment_bank_name ?? ''}
+                defaultValue={paymentProfile?.payment_bank_name ?? ''}
                 placeholder="Bank name"
               />
             </label>
@@ -54,7 +63,7 @@ export default async function SettingsPage({
               <input
                 className={inputClass}
                 name="payment_account_number"
-                defaultValue={profile.payment_account_number ?? ''}
+                defaultValue={paymentProfile?.payment_account_number ?? ''}
                 placeholder="0123456789"
               />
             </label>
@@ -63,7 +72,7 @@ export default async function SettingsPage({
               <input
                 className={inputClass}
                 name="payment_account_name"
-                defaultValue={profile.payment_account_name ?? ''}
+                defaultValue={paymentProfile?.payment_account_name ?? ''}
                 placeholder="Account holder name"
               />
             </label>

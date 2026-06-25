@@ -15,7 +15,7 @@ import {
   tdClass,
   thClass,
 } from '@/lib/styles';
-import type { MonthlyMetric } from '@/lib/types';
+import type { MonthlyMetric, Task } from '@/lib/types';
 
 type Payment = {
   payment_month: string;
@@ -25,15 +25,38 @@ type Payment = {
 
 export default async function EarningsPage() {
   const { supabase } = await requireProfile('user');
-  const [{ data: metricData }, { data: paymentData }] = await Promise.all([
+  const [{ data: metricData }, { data: paymentData }, { data: taskData }] =
+    await Promise.all([
     supabase.rpc('get_my_monthly_metrics'),
     supabase
       .from('monthly_payments')
       .select('payment_month, amount_cents, status')
       .order('payment_month', { ascending: false }),
+    supabase.rpc('get_my_tasks'),
   ]);
   const metrics = (metricData ?? []) as MonthlyMetric[];
   const payments = (paymentData ?? []) as Payment[];
+  const tasks = (taskData ?? []) as Task[];
+  const earningsByProject = Object.values(
+    tasks
+      .filter((task) => task.status === 'approved')
+      .reduce<
+        Record<
+          string,
+          { name: string; approved: number; earned_cents: number }
+        >
+      >((groups, task) => {
+        const key = task.project_slug || task.project_id || 'default';
+        groups[key] ??= {
+          name: task.project_name || 'Unassigned project',
+          approved: 0,
+          earned_cents: 0,
+        };
+        groups[key].approved += 1;
+        groups[key].earned_cents += task.fee_cents;
+        return groups;
+      }, {}),
+  );
   const total = metrics.reduce(
     (sum, metric) => sum + Number(metric.earned_cents),
     0,
@@ -66,6 +89,37 @@ export default async function EarningsPage() {
           icon={<WalletIcon className="h-6 w-6" />}
         />
       </div>
+      <section className={`${panelClass} overflow-x-auto`}>
+        <div className="mb-[1.15rem] flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+            <DollarIcon className="h-5 w-5" />
+          </span>
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+            Earnings by project
+          </h2>
+        </div>
+        <div className="mb-8 grid gap-3 md:grid-cols-2">
+          {earningsByProject.map((project) => (
+            <div
+              className="rounded-2xl border border-[#edf1ee] bg-[#f8fbf7] p-4"
+              key={project.name}
+            >
+              <p className="m-0 text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#68766e]">
+                {project.approved} approved
+              </p>
+              <h3 className="m-0 mt-1 text-[1.05rem] font-bold text-[#16221d]">
+                {project.name}
+              </h3>
+              <strong className="mt-2 block text-[1.45rem] tracking-[-0.05em] text-[#11664b]">
+                {money(project.earned_cents)}
+              </strong>
+            </div>
+          ))}
+          {!earningsByProject.length ? (
+            <p className={emptyClass}>No project earnings recorded yet.</p>
+          ) : null}
+        </div>
+      </section>
       <section className={`${panelClass} overflow-x-auto`}>
         <div className="mb-[1.15rem] flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">

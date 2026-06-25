@@ -5,6 +5,7 @@ import { RealtimeRefresh } from '@/components/realtime-refresh';
 import { FormScrollRestoration } from '@/components/scroll-restoration';
 import { SubmitButton } from '@/components/submit-button';
 import { requireProfile } from '@/lib/auth';
+import { getActiveProjects } from '@/lib/projects';
 import { brandClass, textButtonClass } from '@/lib/styles';
 import Link from 'next/link';
 
@@ -13,8 +14,9 @@ export default async function PortalLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { profile } = await requireProfile();
+  const { profile, supabase } = await requireProfile();
   const admin = profile.role === 'admin';
+  const projects = await getActiveProjects(supabase);
 
   return (
     <div className="min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
@@ -36,7 +38,7 @@ export default async function PortalLayout({
             </span>
           </p>
         </div>
-        <PortalNav isAdmin={admin} />
+        <PortalNav isAdmin={admin} projects={projects} />
         <form action={logout} className="mt-2 lg:mt-auto">
           <SubmitButton
             label="Sign out"
