@@ -55,7 +55,9 @@ export function PortalNav({ isAdmin, projects }: PortalNavProps) {
     return activePath === href || activePath.startsWith(`${href}/`);
   };
 
-  const renderIcon = (status: 'paused' | 'in_progress' | 'completed') => {
+  const renderIcon = (
+    status: 'paused' | 'in_progress' | 'completed' | 'closed',
+  ) => {
     switch (status) {
       case 'paused':
         return (
@@ -68,6 +70,10 @@ export function PortalNav({ isAdmin, projects }: PortalNavProps) {
       case 'completed':
         return (
           <div className="in-progress text-xs rounded-full bg-blue-500 text-white flex justify-center items-center size-3" />
+        );
+      case 'closed':
+        return (
+          <div className="in-progress text-xs rounded-full bg-black text-white flex justify-center items-center size-3" />
         );
       default:
         return null;
