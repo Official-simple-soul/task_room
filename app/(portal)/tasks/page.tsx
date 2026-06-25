@@ -38,7 +38,7 @@ import {
   taskMetaClass,
   warningButtonClass,
 } from '@/lib/styles';
-import type { Task, TaskStatus } from '@/lib/types';
+import type { Project, ProjectStatus, Task, TaskStatus } from '@/lib/types';
 
 type UserOption = {
   id: string;
@@ -62,6 +62,31 @@ function selectedStatus(status?: string): TaskStatus | undefined {
     : undefined;
 }
 
+const projectStatusMeta: Record<
+  ProjectStatus,
+  {
+    label: string;
+    tone: string;
+    note: string;
+  }
+> = {
+  in_progress: {
+    label: 'In progress',
+    tone: 'border-[#bfe1cc] bg-[#eff9f0] text-[#11664b]',
+    note: 'This project is active and available for normal task work.',
+  },
+  paused: {
+    label: 'Paused',
+    tone: 'border-[#f3d79d] bg-[#fff8ea] text-[#9a6408]',
+    note: 'This project is paused. Existing work remains visible, but new activity may be temporarily limited.',
+  },
+  closed: {
+    label: 'Closed',
+    tone: 'border-[#f2c9c9] bg-[#fff3f3] text-[#ae3939]',
+    note: 'This project is closed. Existing records remain visible for reference.',
+  },
+};
+
 function TaskStatusFilter({
   status,
   tasks,
@@ -71,7 +96,9 @@ function TaskStatusFilter({
   tasks: Task[];
   projectSlug?: string;
 }) {
-  const projectQuery = projectSlug ? `project=${encodeURIComponent(projectSlug)}` : '';
+  const projectQuery = projectSlug
+    ? `project=${encodeURIComponent(projectSlug)}`
+    : '';
   const hrefForStatus = (nextStatus?: TaskStatus) => {
     const params = new URLSearchParams(projectQuery);
     if (nextStatus) params.set('status', nextStatus);
@@ -349,6 +376,8 @@ export default async function TasksPage({
       ? tasks.filter((task) => task.status === activeStatus)
       : tasks;
 
+    const meta = projectStatusMeta[selectedProject.status];
+
     return (
       <>
         <TaskRulesSidebar />
@@ -356,6 +385,16 @@ export default async function TasksPage({
           eyebrow="Administration"
           title="Tasks"
           subtitle={`A compact list for ${selectedProject?.name ?? 'the selected project'}. Open a row to view details and actions.`}
+          rightSide={
+            <span
+              className={cn(
+                'inline-flex w-fit items-center rounded-full border px-3 py-1.5 text-[0.82rem] font-bold',
+                meta.tone,
+              )}
+            >
+              {meta.label}
+            </span>
+          }
         />
         <Message notice={notice} error={error} />
         <TaskRateAnnouncement project={selectedProject} />
@@ -470,7 +509,11 @@ export default async function TasksPage({
               </form>
             ) : task.status === 'approved' ? (
               <form
-                action={revertTaskApproval.bind(null, task.id, task.assigned_to)}
+                action={revertTaskApproval.bind(
+                  null,
+                  task.id,
+                  task.assigned_to,
+                )}
                 className={actionsClass}
               >
                 <input type="hidden" name="return_path" value={tasksPath} />
@@ -496,6 +539,8 @@ export default async function TasksPage({
     ? tasks.filter((task) => task.status === activeStatus)
     : tasks;
 
+  const meta = projectStatusMeta[selectedProject.status];
+
   return (
     <>
       <TaskRulesSidebar />
@@ -503,6 +548,16 @@ export default async function TasksPage({
         eyebrow="Work queue"
         title="Tasks"
         subtitle={`A slim list for ${selectedProject?.name ?? 'the selected project'}. Open a row to view the full prompt, URL, and actions.`}
+        rightSide={
+          <span
+            className={cn(
+              'inline-flex w-fit items-center rounded-full border px-3 py-1.5 text-[0.82rem] font-bold',
+              meta.tone,
+            )}
+          >
+            {meta.label}
+          </span>
+        }
       />
       <Message notice={notice} error={error} />
       <TaskRateAnnouncement project={selectedProject} />
