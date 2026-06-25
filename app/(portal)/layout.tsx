@@ -32,7 +32,7 @@ export default async function PortalLayout({
             <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#15b46a]" />
           </span>
           <p className="m-0 text-[0.86rem] font-semibold">
-            {profile.full_name || 'Account'}
+            {profile.full_name.split(' ')[0] || 'Account'}
             <span className="mt-1 block text-[0.8rem] font-normal text-[#68766e]">
               {admin ? 'Administrator' : 'Worker'}
             </span>
