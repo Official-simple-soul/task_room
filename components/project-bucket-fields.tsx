@@ -80,11 +80,11 @@ export function ProjectBucketFields({
   return (
     <div className="grid gap-3">
       {rows.map((bucket, index) => (
-        <div className="flex items-center gap-2">
-          <div
-            className="w-full grid gap-3 rounded-2xl border border-[#edf1ee] bg-[#f8fbf7] p-3 md:grid-cols-[1fr_0.75fr_0.75fr_0.75fr_auto]"
-            key={`${bucket.id || 'new'}-${index}`}
-          >
+        <div
+          className="flex items-center gap-2"
+          key={`${bucket.id || 'new'}-${index}`}
+        >
+          <div className="w-full grid gap-3 rounded-2xl border border-[#edf1ee] bg-[#f8fbf7] p-3 md:grid-cols-[1fr_0.75fr_0.75fr_0.75fr_auto]">
             <input type="hidden" name="bucket_id" value={bucket.id} />
             <label className={labelClass}>
               Label
