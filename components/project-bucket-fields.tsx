@@ -9,6 +9,7 @@ import {
   secondaryButtonClass,
 } from '@/lib/styles';
 import type { ProjectBucket } from '@/lib/types';
+import { FaTrash } from 'react-icons/fa';
 
 type BucketDraft = {
   id: string;
@@ -79,75 +80,77 @@ export function ProjectBucketFields({
   return (
     <div className="grid gap-3">
       {rows.map((bucket, index) => (
-        <div
-          className="grid gap-3 rounded-2xl border border-[#edf1ee] bg-[#f8fbf7] p-3 md:grid-cols-[1fr_0.75fr_0.75fr_0.75fr_auto]"
-          key={`${bucket.id || 'new'}-${index}`}
-        >
-          <input type="hidden" name="bucket_id" value={bucket.id} />
-          <label className={labelClass}>
-            Label
-            <input
-              className={inputClass}
-              name="bucket_label"
-              value={bucket.label}
-              onChange={(event) =>
-                updateRow(index, 'label', event.target.value)
-              }
-              placeholder="10-25"
-              required
-            />
-          </label>
-          <label className={labelClass}>
-            Min steps
-            <input
-              className={inputClass}
-              name="bucket_min"
-              type="number"
-              min="1"
-              step="1"
-              value={bucket.min_steps}
-              onChange={(event) =>
-                updateRow(index, 'min_steps', event.target.value)
-              }
-              required
-            />
-          </label>
-          <label className={labelClass}>
-            Max steps
-            <input
-              className={inputClass}
-              name="bucket_max"
-              type="number"
-              min="1"
-              step="1"
-              value={bucket.max_steps}
-              onChange={(event) =>
-                updateRow(index, 'max_steps', event.target.value)
-              }
-              required
-            />
-          </label>
-          <label className={labelClass}>
-            Fee USD
-            <input
-              className={inputClass}
-              name="bucket_fee"
-              type="number"
-              min="0"
-              step="0.01"
-              value={bucket.fee}
-              onChange={(event) => updateRow(index, 'fee', event.target.value)}
-              required
-            />
-          </label>
-          <button
-            className={`${dangerButtonClass} self-end px-4`}
-            type="button"
-            onClick={() => removeRow(index)}
-            disabled={rows.length === 1}
+        <div className="flex items-center gap-2">
+          <div
+            className="w-full grid gap-3 rounded-2xl border border-[#edf1ee] bg-[#f8fbf7] p-3 md:grid-cols-[1fr_0.75fr_0.75fr_0.75fr_auto]"
+            key={`${bucket.id || 'new'}-${index}`}
           >
-            X
-          </button>
+            <input type="hidden" name="bucket_id" value={bucket.id} />
+            <label className={labelClass}>
+              Label
+              <input
+                className={inputClass}
+                name="bucket_label"
+                value={bucket.label}
+                onChange={(event) =>
+                  updateRow(index, 'label', event.target.value)
+                }
+                placeholder="10-25"
+                required
+              />
+            </label>
+            <label className={labelClass}>
+              Min steps
+              <input
+                className={inputClass}
+                name="bucket_min"
+                type="number"
+                min="1"
+                step="1"
+                value={bucket.min_steps}
+                onChange={(event) =>
+                  updateRow(index, 'min_steps', event.target.value)
+                }
+                required
+              />
+            </label>
+            <label className={labelClass}>
+              Max steps
+              <input
+                className={inputClass}
+                name="bucket_max"
+                type="number"
+                min="1"
+                step="1"
+                value={bucket.max_steps}
+                onChange={(event) =>
+                  updateRow(index, 'max_steps', event.target.value)
+                }
+                required
+              />
+            </label>
+            <label className={labelClass}>
+              Fee USD
+              <input
+                className={inputClass}
+                name="bucket_fee"
+                type="number"
+                min="0"
+                step="0.01"
+                value={bucket.fee}
+                onChange={(event) =>
+                  updateRow(index, 'fee', event.target.value)
+                }
+                required
+              />
+            </label>
+          </div>
+          <FaTrash
+            // className={`${dangerButtonClass} self-end px-4`}
+            type="button"
+            color="red"
+            onClick={() => removeRow(index)}
+          />
         </div>
       ))}
       <button
