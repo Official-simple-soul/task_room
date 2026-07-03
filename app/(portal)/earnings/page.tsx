@@ -91,26 +91,26 @@ export default async function EarningsPage() {
       </div>
       <section className={`${panelClass} overflow-x-auto`}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <DollarIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Earnings by project
           </h2>
         </div>
         <div className="mb-8 grid gap-3 md:grid-cols-2">
           {earningsByProject.map((project) => (
             <div
-              className="rounded-2xl border border-[#edf1ee] bg-[#f8fbf7] p-4"
+              className="rounded-2xl border border-[#edf1ee] bg-[#f8fbf7] p-4 dark:border-[#222c26] dark:bg-[#161d19]"
               key={project.name}
             >
-              <p className="m-0 text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#68766e]">
+              <p className="m-0 text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-[#68766e] dark:text-[#8da398]">
                 {project.approved} approved
               </p>
-              <h3 className="m-0 mt-1 text-[1.05rem] font-bold text-[#16221d]">
+              <h3 className="m-0 mt-1 text-[1.05rem] font-bold text-[#16221d] dark:text-[#ecf2ee]">
                 {project.name}
               </h3>
-              <strong className="mt-2 block text-[1.45rem] tracking-[-0.05em] text-[#11664b]">
+              <strong className="mt-2 block text-[1.45rem] tracking-[-0.05em] text-[#11664b] dark:text-[#10b981]">
                 {money(project.earned_cents)}
               </strong>
             </div>
@@ -122,10 +122,10 @@ export default async function EarningsPage() {
       </section>
       <section className={`${panelClass} overflow-x-auto`}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <ClipboardIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Monthly task results
           </h2>
         </div>
@@ -159,21 +159,21 @@ export default async function EarningsPage() {
       </section>
       <section className={panelClass}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <WalletIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Monthly payments
           </h2>
         </div>
         <div className="grid">
           {payments.map((payment) => (
             <div
-              className="flex items-center justify-between gap-5 border-t border-[#edf1ee] py-[1.1rem] first:border-t-0 hover:bg-[rgba(231,243,237,0.3)]"
+              className="flex items-center justify-between gap-5 border-t border-[#edf1ee] dark:border-[#222c26] py-[1.1rem] first:border-t-0 hover:bg-[rgba(231,243,237,0.2)] dark:hover:bg-[#10b981]/5 transition duration-150 rounded-lg px-2"
               key={payment.payment_month}
             >
-              <strong>{monthLabel(payment.payment_month)}</strong>
-              <span className="mt-1 block text-[0.87rem] font-medium text-[#68766e]">
+              <strong className="text-[#16221d] dark:text-[#ecf2ee]">{monthLabel(payment.payment_month)}</strong>
+              <span className="mt-1 block text-[0.87rem] font-medium text-[#68766e] dark:text-[#8da398]">
                 {money(payment.amount_cents)} |{' '}
                 {payment.status === 'paid' ? 'Paid' : 'Due'}
               </span>

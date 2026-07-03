@@ -21,6 +21,7 @@ import { getActiveProjects } from '@/lib/projects';
 import {
   actionsClass,
   buttonClass,
+  cn,
   commentClass,
   dangerButtonClass,
   emptyClass,
@@ -88,14 +89,14 @@ export default async function UserDetailsPage({
       <TaskRateAnnouncement project={projects[0]} />
       <section className={panelClass}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <ClipboardIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Payment details
           </h2>
         </div>
-        <dl className="grid gap-4 sm:grid-cols-3 [&_dd]:mt-1.5 [&_dd]:font-bold [&_dt]:text-[0.78rem] [&_dt]:text-[#68766e]">
+        <dl className="grid gap-4 sm:grid-cols-3 [&_dd]:mt-1.5 [&_dd]:font-bold [&_dd]:text-[#16221d] dark:[&_dd]:text-[#ecf2ee] [&_dt]:text-[0.78rem] [&_dt]:text-[#68766e] dark:[&_dt]:text-[#8da398]">
           <div>
             <dt>Bank</dt>
             <dd>{user.payment_bank_name || '-'}</dd>
@@ -112,10 +113,10 @@ export default async function UserDetailsPage({
       </section>
       <section className={panelClass}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <PlusIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Assign new task
           </h2>
         </div>
@@ -126,10 +127,10 @@ export default async function UserDetailsPage({
       </section>
       <section className={panelClass}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <ClipboardIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Task history
           </h2>
         </div>
@@ -140,23 +141,23 @@ export default async function UserDetailsPage({
               key={task.id}
             >
               <div className={taskTitleClass}>
-                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e7f3ed] text-[#11664b]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
                   <ClipboardIcon className="h-6 w-6" />
                 </span>
                 <div className="min-w-0">
-                  <h3 className="m-0 text-[1.18rem] tracking-[-0.03em]">
+                  <h3 className="m-0 text-[1.18rem] tracking-[-0.03em] text-[#16221d] dark:text-[#ecf2ee]">
                     {task.external_task_id}
                   </h3>
-                  <p className="m-0 text-[0.92rem] text-[#4c5b51]">
+                  <p className="m-0 text-[0.92rem] text-[#4c5b51] dark:text-[#8da398]">
                     {task.task_language} | {task.step_range} steps |{' '}
                     {money(task.fee_cents)} | {dateLabel(task.created_at)} |{' '}
                     {task.rework_count} reworks
                   </p>
-                  <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
+                  <p className="mt-1 text-[0.88rem] font-medium text-[#68766e] dark:text-[#8da398]">
                     Final steps: {task.final_step_count ?? 'Not submitted yet'}
                   </p>
                   {task.application && (
-                    <p className="mt-1 text-[0.88rem] font-medium text-[#68766e]">
+                    <p className="mt-1 text-[0.88rem] font-medium text-[#68766e] dark:text-[#8da398]">
                       Application: {task.application}
                     </p>
                   )}
@@ -165,8 +166,8 @@ export default async function UserDetailsPage({
               </div>
               <TaskPrompt prompt={task.prompt} />
               {task.status !== 'approved' && (
-                <details className="mt-4 rounded-2xl border border-[#edf1ee] bg-white/70 p-4">
-                  <summary className="flex w-fit cursor-pointer list-none items-center gap-2 rounded-xl bg-[#e7f3ed] px-3 py-2 text-[0.9rem] font-semibold text-[#11664b] transition hover:-translate-y-px [&::-webkit-details-marker]:hidden">
+                <details className="mt-4 rounded-2xl border border-[#edf1ee] dark:border-[#222c26] bg-[#f8fbf7]/50 dark:bg-[#131b17]/50 p-4">
+                  <summary className="flex w-fit cursor-pointer list-none items-center gap-2 rounded-xl bg-[#e7f3ed] px-3 py-1.5 text-[0.88rem] font-bold text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981] transition hover:-translate-y-px [&::-webkit-details-marker]:hidden">
                     <EditIcon className="h-4 w-4" />
                     Edit task
                   </summary>
@@ -174,7 +175,7 @@ export default async function UserDetailsPage({
                     action={updateTask.bind(null, task.id, id)}
                     className="mt-4"
                   >
-                    <h4 className="mb-3 text-[0.95rem] font-semibold text-[#16221d]">
+                    <h4 className="mb-3 text-[0.95rem] font-semibold text-[#16221d] dark:text-[#ecf2ee]">
                       Edit task details
                     </h4>
                     <div className={fieldGridClass}>
@@ -194,7 +195,7 @@ export default async function UserDetailsPage({
               {task.status === 'pending' && (
                 <form
                   action={reassignTask.bind(null, task.id)}
-                  className="mt-4 grid gap-4 rounded-2xl border border-[#edf1ee] bg-white/90 p-4 shadow-[0_10px_30px_rgba(17,102,75,0.05)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
+                  className="mt-4 grid gap-4 rounded-2xl border border-[#edf1ee] dark:border-[#222c26] bg-white/90 dark:bg-[#131b17] p-4 shadow-[0_10px_30px_rgba(17,102,75,0.02)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
                 >
                   <input
                     type="hidden"
@@ -204,13 +205,13 @@ export default async function UserDetailsPage({
                   <label className={labelClass}>
                     Reassign pending task
                     <select
-                      className={inputClass}
+                      className={cn(inputClass, 'dark:bg-[#131b17]')}
                       name="assigned_to"
                       defaultValue={task.assigned_to}
                       required
                     >
                       {users.map((worker) => (
-                        <option key={worker.id} value={worker.id}>
+                        <option key={worker.id} value={worker.id} className="dark:bg-[#131b17]">
                           {worker.full_name || 'Unnamed worker'}
                         </option>
                       ))}
@@ -262,7 +263,7 @@ export default async function UserDetailsPage({
               {task.status === 'completed' && (
                 <form
                   action={startReview.bind(null, task.id, id)}
-                  className="mt-5 grid gap-3 rounded-2xl border border-[#edf1ee] bg-white/80 p-4 sm:grid-cols-[minmax(180px,260px)_auto] sm:items-end"
+                  className="mt-5 grid gap-3 rounded-2xl border border-[#edf1ee] dark:border-[#222c26] bg-[#fbfdfb] dark:bg-[#131b17] p-4 sm:grid-cols-[minmax(180px,260px)_auto] sm:items-end"
                 >
                   <label className={labelClass}>
                     Final step count
@@ -282,7 +283,7 @@ export default async function UserDetailsPage({
                     pendingLabel="Moving to review..."
                     className={buttonClass}
                   />
-                  <p className="m-0 text-[0.82rem] leading-5 text-[#68766e] sm:col-span-2">
+                  <p className="m-0 text-[0.82rem] leading-5 text-[#68766e] dark:text-[#8da398] sm:col-span-2">
                     The task fee will recalculate automatically from this final
                     step count when moved to review.
                   </p>
@@ -291,7 +292,7 @@ export default async function UserDetailsPage({
               {task.status === 'under_review' && (
                 <form
                   action={decideTask.bind(null, task.id, id)}
-                  className="mt-4"
+                  className="mt-4 rounded-2xl border border-[#edf1ee] dark:border-[#222c26] bg-[#fbfdfb] dark:bg-[#131b17] p-4"
                 >
                   <textarea
                     className={inputClass}

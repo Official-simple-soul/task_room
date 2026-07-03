@@ -6,6 +6,7 @@ import { requireProfile } from '@/lib/auth';
 import { dateLabel, money } from '@/lib/format';
 import {
   buttonClass,
+  cn,
   emptyClass,
   inputClass,
   labelClass,
@@ -138,7 +139,7 @@ export default async function DailyRecordsPage({
           <label className={labelClass}>
             Filter by submitted date
             <input
-              className={inputClass}
+              className={cn(inputClass, 'dark:bg-[#131b17]')}
               name="date"
               type="date"
               defaultValue={selectedDate ?? ''}
@@ -150,7 +151,7 @@ export default async function DailyRecordsPage({
           {selectedDate ? (
             <a
               href="/records"
-              className="inline-flex w-fit items-center justify-center rounded-[10px] px-[1rem] py-[0.82rem] text-[0.95rem] font-semibold text-[#68766e]"
+              className="inline-flex w-fit items-center justify-center rounded-xl px-4 py-2.5 text-[0.92rem] font-semibold text-[#68766e] hover:bg-[#edf1ee] dark:text-[#8da398] dark:hover:bg-[#1a2520] transition duration-150"
             >
               Clear
             </a>
@@ -163,45 +164,45 @@ export default async function DailyRecordsPage({
           <section className={panelClass} key={key}>
             <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="mb-2 text-[0.76rem] font-bold uppercase tracking-[0.13em] text-[#11664b]">
+                <p className="mb-2 text-[0.76rem] font-bold uppercase tracking-[0.13em] text-[#11664b] dark:text-[#10b981]">
                   Submitted record
                 </p>
-                <h2 className="m-0 text-[1.25rem] font-bold tracking-[-0.035em] text-[#16221d]">
+                <h2 className="m-0 text-[1.25rem] font-bold tracking-[-0.035em] text-[#16221d] dark:text-[#ecf2ee]">
                   {longDateLabel(key)}
                 </h2>
               </div>
-              <div className="rounded-full bg-[#e7f3ed] px-4 py-2 text-[0.9rem] font-bold text-[#11664b]">
+              <div className="rounded-full bg-[#e7f3ed] px-4 py-2 text-[0.9rem] font-bold text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
                 {records.length} task{records.length === 1 ? '' : 's'}
               </div>
             </div>
 
-            <div className="grid overflow-hidden rounded-2xl border border-[#edf1ee]">
+            <div className="grid overflow-hidden rounded-2xl border border-[#edf1ee] dark:border-[#222c26]">
               {records.map((task) => (
                 <article
-                  className="grid gap-3 border-b border-[#edf1ee] bg-white p-4 last:border-b-0 lg:grid-cols-[1fr_auto] lg:items-center"
+                  className="grid gap-3 border-b border-[#edf1ee] dark:border-[#222c26] bg-white dark:bg-[#131b17] p-4 last:border-b-0 lg:grid-cols-[1fr_auto] lg:items-center"
                   key={task.id}
                 >
                   <div>
                     <div className="mb-1.5 flex flex-wrap items-center gap-2">
-                      <h3 className="m-0 text-[1rem] font-bold text-[#16221d]">
+                      <h3 className="m-0 text-[1rem] font-bold text-[#16221d] dark:text-[#ecf2ee]">
                         {task.external_task_id}
                       </h3>
                       <StatusPill status={task.status as TaskStatus} />
                     </div>
-                    <p className="m-0 text-[0.9rem] leading-6 text-[#68766e]">
+                    <p className="m-0 text-[0.9rem] leading-6 text-[#68766e] dark:text-[#8da398]">
                       {workerNames[task.assigned_to] ?? 'Unnamed worker'} |{' '}
                       {task.task_language} | expected {task.step_range} steps |
                       final {task.final_step_count ?? '-'} steps
                     </p>
-                    <p className="m-0 mt-1 text-[0.84rem] text-[#849087]">
+                    <p className="m-0 mt-1 text-[0.84rem] text-[#849087] dark:text-[#687a70]">
                       Moved to review: {dateLabel(task.review_started_at)}
                     </p>
                   </div>
                   <div className="text-left lg:text-right">
-                    <strong className="block text-[1rem] text-[#16221d]">
+                    <strong className="block text-[1rem] text-[#16221d] dark:text-[#ecf2ee]">
                       {money(task.fee_cents)}
                     </strong>
-                    <span className="text-[0.84rem] text-[#68766e]">
+                    <span className="text-[0.84rem] text-[#68766e] dark:text-[#8da398]">
                       {task.rework_count} rework
                       {task.rework_count === 1 ? '' : 's'}
                     </span>

@@ -41,10 +41,10 @@ export default async function UsersPage({
       <Message notice={notice} error={error} />
       <section className={`${panelClass} overflow-x-auto`}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <UsersIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Worker accounts
           </h2>
         </div>
@@ -66,7 +66,7 @@ export default async function UsersPage({
               return (
                 <tr key={user.id}>
                   <td className={tdClass}>
-                    <strong>{user.full_name || 'Unnamed user'}</strong>
+                    <strong className="text-[#16221d] dark:text-[#ecf2ee]">{user.full_name || 'Unnamed user'}</strong>
                   </td>
                   <td className={tdClass}>{work.length}</td>
                   <td className={tdClass}>
@@ -82,17 +82,17 @@ export default async function UsersPage({
                   <td className={tdClass}>
                     <div className="flex flex-wrap items-center justify-end gap-3">
                       <Link
-                        className="text-[0.9rem] font-semibold text-[#11664b]"
+                        className="text-[0.9rem] font-semibold text-[#11664b] dark:text-[#10b981]"
                         href={`/users/${user.id}`}
                       >
                         Open user
                       </Link>
                       <details className="relative">
-                        <summary className="cursor-pointer list-none text-[0.9rem] font-semibold text-[#ae3939] [&::-webkit-details-marker]:hidden">
+                        <summary className="cursor-pointer list-none text-[0.9rem] font-semibold text-[#ae3939] dark:text-red-400 [&::-webkit-details-marker]:hidden">
                           Delete
                         </summary>
-                        <div className="absolute right-0 z-20 mt-2 w-[260px] rounded-2xl border border-[#f2c9c9] bg-white p-4 text-left shadow-[0_18px_45px_rgba(22,34,29,0.14)]">
-                          <p className="m-0 text-[0.88rem] leading-5 text-[#5e4826]">
+                        <div className="absolute right-0 z-20 mt-2 w-[260px] rounded-2xl border border-[#f2c9c9] bg-white p-4 text-left shadow-[0_18px_45px_rgba(22,34,29,0.14)] dark:border-[#ef4444]/30 dark:bg-[#131b17] dark:shadow-none">
+                          <p className="m-0 text-[0.88rem] leading-5 text-[#5e4826] dark:text-amber-200">
                             Delete this worker account and its related worker
                             records. This cannot be undone.
                           </p>

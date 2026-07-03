@@ -6,6 +6,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { requireProfile } from '@/lib/auth';
 import { money, monthLabel } from '@/lib/format';
 import {
+  cn,
   emptyClass,
   inputClass,
   labelClass,
@@ -47,19 +48,19 @@ export default async function PaymentsPage({
       <Message notice={notice} error={error} />
       <section className={panelClass}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <WalletIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Record payment
           </h2>
         </div>
         <form action={recordPayment} className={paymentGridClass}>
           <label className={labelClass}>
             User
-            <select className={inputClass} name="user_id" required>
+            <select className={cn(inputClass, 'dark:bg-[#131b17]')} name="user_id" required>
               {(users ?? []).map((user) => (
-                <option key={user.id} value={user.id}>
+                <option key={user.id} value={user.id} className="dark:bg-[#131b17]">
                   {user.full_name || 'Unnamed user'}
                 </option>
               ))}
@@ -68,7 +69,7 @@ export default async function PaymentsPage({
           <label className={labelClass}>
             Month
             <input
-              className={inputClass}
+              className={cn(inputClass, 'dark:bg-[#131b17]')}
               name="payment_month"
               type="month"
               required
@@ -87,9 +88,9 @@ export default async function PaymentsPage({
           </label>
           <label className={labelClass}>
             Status
-            <select className={inputClass} name="status">
-              <option value="paid">Paid</option>
-              <option value="due">Due</option>
+            <select className={cn(inputClass, 'dark:bg-[#131b17]')} name="status">
+              <option value="paid" className="dark:bg-[#131b17]">Paid</option>
+              <option value="due" className="dark:bg-[#131b17]">Due</option>
             </select>
           </label>
           <label className={`${labelClass} lg:col-span-4`}>
@@ -105,10 +106,10 @@ export default async function PaymentsPage({
       </section>
       <section className={`${panelClass} overflow-x-auto`}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <WalletIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Worker payment details
           </h2>
         </div>
@@ -138,10 +139,10 @@ export default async function PaymentsPage({
       </section>
       <section className={`${panelClass} overflow-x-auto`}>
         <div className="mb-[1.15rem] flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
             <CalendarIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Payment records
           </h2>
         </div>
@@ -163,7 +164,7 @@ export default async function PaymentsPage({
                 <td className={tdClass}>{monthLabel(payment.payment_month)}</td>
                 <td className={tdClass}>{money(payment.amount_cents)}</td>
                 <td
-                  className={`${tdClass} ${payment.status === 'paid' ? 'font-semibold text-[#11664b]' : ''}`}
+                  className={cn(tdClass, payment.status === 'paid' && 'font-bold text-[#11664b] dark:text-[#10b981]')}
                 >
                   {payment.status === 'paid' ? 'Paid' : 'Due'}
                 </td>
