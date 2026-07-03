@@ -1,4 +1,5 @@
 import { CalendarIcon, CheckIcon, ClipboardIcon, DollarIcon } from '@/components/icons';
+import { FilterSubmitButton } from '@/components/filter-submit-button';
 import { PageHeader } from '@/components/page-header';
 import { StatCard } from '@/components/stat-card';
 import { StatusPill } from '@/components/status-pill';
@@ -145,9 +146,7 @@ export default async function DailyRecordsPage({
               defaultValue={selectedDate ?? ''}
             />
           </label>
-          <button className={buttonClass} type="submit">
-            Apply filter
-          </button>
+          <FilterSubmitButton label="Apply filter" pendingLabel="Applying..." className={buttonClass} />
           {selectedDate ? (
             <a
               href="/records"

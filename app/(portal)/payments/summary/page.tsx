@@ -1,4 +1,5 @@
 import { ClipboardIcon } from '@/components/icons';
+import { FilterSubmitButton } from '@/components/filter-submit-button';
 import { PageHeader } from '@/components/page-header';
 import { requireProfile } from '@/lib/auth';
 import { money, monthLabel, statusLabels } from '@/lib/format';
@@ -105,9 +106,11 @@ export default async function PaymentsSummaryPage({
               ))}
             </select>
           </label>
-          <button className={`${buttonClass} self-end`} type="submit">
-            Apply filter
-          </button>
+          <FilterSubmitButton
+            label="Apply filter"
+            pendingLabel="Applying..."
+            className={`${buttonClass} self-end`}
+          />
         </form>
         <table className={tableClass}>
           <thead>
