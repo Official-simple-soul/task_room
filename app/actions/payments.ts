@@ -18,14 +18,7 @@ async function queuePaymentEmail(
   supabase: SupabaseClient,
   payment: PaymentEmailRow | null | undefined,
 ) {
-  if (!payment) {
-    console.warn("[payment-email] skipped: no payment row returned from the write.");
-    return;
-  }
-
-  console.log(
-    `[payment-email] preparing notification: user=${payment.user_id} status=${payment.status} month=${payment.payment_month}`,
-  );
+  if (!payment) return;
 
   const { data: worker, error } = await supabase
     .from("profiles")
@@ -34,11 +27,11 @@ async function queuePaymentEmail(
     .maybeSingle();
 
   if (error) {
-    console.error(`[payment-email] failed to load worker profile ${payment.user_id}: ${error.message}`);
+    console.error(`[email] could not load worker profile ${payment.user_id}: ${error.message}`);
     return;
   }
   if (!worker?.email) {
-    console.warn(`[payment-email] skipped: worker ${payment.user_id} has no email on file.`);
+    console.warn(`[email] skipped payment notification: worker ${payment.user_id} has no email on file.`);
     return;
   }
 

@@ -13,6 +13,7 @@ export function SubmitButton({
   disabled,
   onClick,
   type,
+  spinnerClassName = 'border-white/40 border-t-white',
   ...props
 }: {
   label: string;
@@ -20,6 +21,7 @@ export function SubmitButton({
   baseClassName?: string;
   className?: string;
   confirmMessage?: string;
+  spinnerClassName?: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>) {
   const { pending } = useFormStatus();
   const isDisabled = pending || disabled;
@@ -46,7 +48,7 @@ export function SubmitButton({
     >
       {pending ? (
         <span className="inline-flex items-center gap-2">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+          <span className={cn('h-4 w-4 animate-spin rounded-full border-2', spinnerClassName)} />
           {pendingLabel}
         </span>
       ) : (

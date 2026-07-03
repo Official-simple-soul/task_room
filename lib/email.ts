@@ -246,26 +246,26 @@ async function sendBrevoEmail(options: {
   subject: string;
   htmlContent: string;
 }) {
-  const tag = `[email:${options.subject}]`;
+  const tag = '[email]';
   const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.BREVO_SENDER_EMAIL;
   const senderName = process.env.BREVO_SENDER_NAME ?? 'TaskRoom';
 
   if (!options.to) {
-    console.warn(`${tag} skipped: no recipient email address on file.`);
+    console.warn(`${tag} skipped "${options.subject}": no recipient email address on file.`);
     return;
   }
 
   if (!apiKey || !senderEmail) {
     console.warn(
-      `${tag} skipped: missing Brevo config in this environment ` +
+      `${tag} skipped "${options.subject}": missing Brevo config in this environment ` +
         `(BREVO_API_KEY=${apiKey ? 'set' : 'MISSING'}, BREVO_SENDER_EMAIL=${senderEmail ? 'set' : 'MISSING'}). ` +
         `Set these in Netlify site settings > Environment variables and redeploy.`,
     );
     return;
   }
 
-  console.log(`${tag} sending to ${options.to}...`);
+  console.log(`${tag} sending "${options.subject}" to ${options.to}...`);
 
   try {
     const response = await fetch('https://api.brevo.com/v3/smtp/email', {
@@ -284,14 +284,16 @@ async function sendBrevoEmail(options: {
 
     if (!response.ok) {
       const body = await response.text();
-      console.error(`${tag} Brevo rejected the send (HTTP ${response.status}): ${body}`);
+      console.error(`${tag} Brevo rejected "${options.subject}" (HTTP ${response.status}): ${body}`);
       return;
     }
 
     const result = (await response.json().catch(() => null)) as { messageId?: string } | null;
-    console.log(`${tag} sent to ${options.to} (messageId=${result?.messageId ?? 'unknown'}).`);
+    console.log(`${tag} sent "${options.subject}" to ${options.to} (messageId=${result?.messageId ?? 'unknown'}).`);
   } catch (err) {
-    console.error(`${tag} request to Brevo threw an error: ${err instanceof Error ? err.message : String(err)}`);
+    console.error(
+      `${tag} request to Brevo threw for "${options.subject}": ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
 

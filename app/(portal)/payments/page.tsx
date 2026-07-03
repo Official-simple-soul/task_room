@@ -3,6 +3,7 @@ import { CalendarIcon, WalletIcon } from '@/components/icons';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
 import { PaymentForm } from '@/components/payment-form';
+import { SubmitButton } from '@/components/submit-button';
 import { requireProfile } from '@/lib/auth';
 import { money, monthLabel } from '@/lib/format';
 import { cn, emptyClass, panelClass, tableClass, tdClass, thClass } from '@/lib/styles';
@@ -139,12 +140,12 @@ export default async function PaymentsPage({
                     >
                       {payment.status === 'paid' ? 'Paid' : 'Due'}
                     </span>
-                    <button
-                      type="submit"
-                      className="cursor-pointer text-[0.8rem] font-semibold text-[#11664b] hover:underline dark:text-[#10b981]"
-                    >
-                      Mark as {payment.status === 'paid' ? 'Due' : 'Paid'}
-                    </button>
+                    <SubmitButton
+                      label={`Mark as ${payment.status === 'paid' ? 'Due' : 'Paid'}`}
+                      pendingLabel="Updating..."
+                      baseClassName="cursor-pointer text-[0.8rem] font-semibold text-[#11664b] hover:underline dark:text-[#10b981]"
+                      spinnerClassName="border-[#11664b]/30 border-t-[#11664b] dark:border-[#10b981]/30 dark:border-t-[#10b981]"
+                    />
                   </form>
                 </td>
               </tr>

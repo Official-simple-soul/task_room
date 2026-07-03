@@ -150,14 +150,7 @@ async function queueTaskEmail(
   status: TaskEmailPayload['status'],
   comment?: string | null,
 ) {
-  if (!task) {
-    console.warn('[task-email] skipped: no task row returned from the write.');
-    return;
-  }
-
-  console.log(
-    `[task-email] preparing notification: task=${task.external_task_id} status=${status} user=${task.assigned_to}`,
-  );
+  if (!task) return;
 
   const { data: worker, error } = await supabase
     .from('profiles')
@@ -166,11 +159,11 @@ async function queueTaskEmail(
     .maybeSingle();
 
   if (error) {
-    console.error(`[task-email] failed to load worker profile ${task.assigned_to}: ${error.message}`);
+    console.error(`[email] could not load worker profile ${task.assigned_to}: ${error.message}`);
     return;
   }
   if (!worker?.email) {
-    console.warn(`[task-email] skipped: worker ${task.assigned_to} has no email on file.`);
+    console.warn(`[email] skipped task notification: worker ${task.assigned_to} has no email on file.`);
     return;
   }
 
