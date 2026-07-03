@@ -10,13 +10,13 @@ import {
 } from './icons';
 
 const statusClass: Record<TaskStatus, string> = {
-  pending: 'bg-[#edf1ef] text-[#53645a]',
-  claimed: 'bg-[#e7f3ed] text-[#11664b]',
-  completed: 'bg-[#eaf0fc] text-[#34568d]',
-  under_review: 'bg-[#eaf0fc] text-[#34568d]',
-  approved: 'bg-[#e7f3ed] text-[#11664b]',
-  rework: 'bg-[#fff3df] text-[#a56308]',
-  rejected: 'bg-[#fde9e9] text-[#ae3939]',
+  pending: 'bg-[#edf1ef] text-[#53645a] dark:bg-[#131b17] dark:text-[#8da398]',
+  claimed: 'bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/10 dark:text-[#10b981] dark:border dark:border-[#10b981]/15',
+  completed: 'bg-[#eaf0fc] text-[#34568d] dark:bg-[#2d6fa8]/10 dark:text-[#63b3ed] dark:border dark:border-[#2d6fa8]/15',
+  under_review: 'bg-[#eaf0fc] text-[#34568d] dark:bg-[#2d6fa8]/10 dark:text-[#63b3ed] dark:border dark:border-[#2d6fa8]/15',
+  approved: 'bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/10 dark:text-[#10b981] dark:border dark:border-[#10b981]/15',
+  rework: 'bg-[#fff3df] text-[#a56308] dark:bg-[#ff9800]/10 dark:text-[#ffb74d] dark:border dark:border-[#ff9800]/15',
+  rejected: 'bg-[#fde9e9] text-[#ae3939] dark:bg-[#ef4444]/10 dark:text-[#fca5a5] dark:border dark:border-[#ef4444]/15',
 };
 
 export function StatusPill({ status }: { status: TaskStatus }) {

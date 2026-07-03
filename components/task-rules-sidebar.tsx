@@ -91,7 +91,7 @@ export function TaskRulesSidebar() {
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          'fixed right-4 top-24 z-40 inline-flex items-center gap-2 rounded-full border border-[#d9e8df] bg-white px-4 py-3 text-[0.9rem] font-bold text-[#11664b] shadow-[0_18px_45px_rgba(22,34,29,0.14)] transition hover:-translate-y-px hover:border-[#11664b]',
+          'fixed right-4 top-24 z-40 inline-flex items-center gap-2 rounded-full border border-[#d9e8df] bg-white px-4 py-2.5 text-[0.88rem] font-bold text-[#11664b] shadow-[0_10px_30px_rgba(22,34,29,0.08)] transition hover:-translate-y-px hover:border-[#11664b] dark:border-[#222c26] dark:bg-[#131b17] dark:text-[#10b981] dark:shadow-none dark:hover:border-[#10b981]',
           open && 'pointer-events-none opacity-0',
         )}
       >
@@ -101,14 +101,14 @@ export function TaskRulesSidebar() {
 
       <aside
         className={cn(
-          'fixed bottom-4 right-4 top-4 z-40 flex w-[min(430px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[28px] border border-[#dbe9e1] bg-white shadow-[0_28px_80px_rgba(22,34,29,0.22)] transition duration-300',
+          'fixed bottom-4 right-4 top-4 z-40 flex w-[min(430px,calc(100vw-2rem))] flex-col overflow-hidden rounded-[24px] border border-[#dbe9e1] bg-white shadow-[0_28px_80px_rgba(22,34,29,0.15)] transition duration-300 dark:border-[#222c26] dark:bg-[#0f1512] dark:shadow-[0_28px_80px_rgba(0,0,0,0.4)]',
           open
             ? 'translate-x-0 opacity-100'
             : 'pointer-events-none translate-x-[calc(100%+2rem)] opacity-0',
         )}
         aria-label="Task completion rules"
       >
-        <div className="border-b border-[#edf1ee] bg-[radial-gradient(circle_at_top_right,rgba(22,164,102,0.22),transparent_34%),linear-gradient(135deg,#0f5f46,#163228)] p-5 text-white">
+        <div className="border-b border-[#edf1ee] dark:border-[#222c26] bg-[radial-gradient(circle_at_top_right,rgba(22,164,102,0.22),transparent_34%),linear-gradient(135deg,#0f5f46,#163228)] dark:bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.15),transparent_40%),linear-gradient(135deg,#0d4332,#091a14)] p-5 text-white">
           <div className="flex items-start justify-between gap-4">
             <div className="flex gap-3">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/15 backdrop-blur">
@@ -139,12 +139,12 @@ export function TaskRulesSidebar() {
         </div>
 
         <div className="overflow-y-auto p-5">
-          <section className="mb-5 rounded-3xl border border-[#dcebe2] bg-[#f7fbf8] p-4">
+          <section className="mb-5 rounded-2xl border border-[#dcebe2] bg-[#f7fbf8] p-4 dark:border-[#222c26] dark:bg-[#161d19]">
             <div className="mb-3 flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
                 <ClockIcon className="h-4 w-4" />
               </span>
-              <h3 className="m-0 text-[0.98rem] font-bold text-[#16221d]">
+              <h3 className="m-0 text-[0.98rem] font-bold text-[#16221d] dark:text-[#ecf2ee]">
                 Screenshot timing examples
               </h3>
             </div>
@@ -152,17 +152,17 @@ export function TaskRulesSidebar() {
               {examples.map((example) => (
                 <div
                   key={example.title}
-                  className="rounded-2xl border border-[#edf1ee] bg-white p-3"
+                  className="rounded-xl border border-[#edf1ee] bg-white p-3 dark:border-[#222c26] dark:bg-[#0f1512]"
                 >
-                  <p className="m-0 text-[0.9rem] font-bold text-[#11664b]">
+                  <p className="m-0 text-[0.9rem] font-bold text-[#11664b] dark:text-[#10b981]">
                     {example.title}
                   </p>
                   <div className="mt-3 grid gap-2">
-                    <p className="m-0 rounded-xl bg-[#fff8ea] px-3 py-2 text-[0.84rem] leading-5 text-[#6a4a12]">
-                      <strong>Before:</strong> {example.before}
+                    <p className="m-0 rounded-xl bg-[#fff8ea] px-3 py-2 text-[0.84rem] leading-5 text-[#6a4a12] dark:bg-[#ff9800]/10 dark:text-amber-200">
+                      <strong className="dark:text-amber-400">Before:</strong> {example.before}
                     </p>
-                    <p className="m-0 rounded-xl bg-[#e9f4ec] px-3 py-2 text-[0.84rem] leading-5 text-[#11664b]">
-                      <strong>After:</strong> {example.after}
+                    <p className="m-0 rounded-xl bg-[#e9f4ec] px-3 py-2 text-[0.84rem] leading-5 text-[#11664b] dark:bg-[#10b981]/10 dark:text-[#10b981]">
+                      <strong className="dark:text-[#10b981]">After:</strong> {example.after}
                     </p>
                   </div>
                 </div>
@@ -174,21 +174,21 @@ export function TaskRulesSidebar() {
             {guidelines.map((item, index) => (
               <article
                 key={item.title}
-                className="grid grid-cols-[auto_1fr] gap-3 rounded-2xl border border-[#edf1ee] bg-white p-3 shadow-[0_10px_26px_rgba(22,34,29,0.04)]"
+                className="grid grid-cols-[auto_1fr] gap-3 rounded-xl border border-[#edf1ee] bg-white p-3 shadow-[0_10px_26px_rgba(22,34,29,0.02)] dark:border-[#222c26] dark:bg-[#131b17] dark:shadow-none"
               >
-                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#e7f3ed] text-[0.82rem] font-bold text-[#11664b]">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#e7f3ed] text-[0.82rem] font-bold text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]">
                   {index + 1}
                 </span>
                 <div>
-                  <h3 className="m-0 flex items-center gap-2 text-[0.92rem] font-bold text-[#16221d]">
+                  <h3 className="m-0 flex items-center gap-2 text-[0.92rem] font-bold text-[#16221d] dark:text-[#ecf2ee]">
                     {index < 4 ? (
-                      <CheckIcon className="h-4 w-4 text-[#11664b]" />
+                      <CheckIcon className="h-4 w-4 text-[#11664b] dark:text-[#10b981]" />
                     ) : index > 8 ? (
-                      <AlertIcon className="h-4 w-4 text-[#a56308]" />
+                      <AlertIcon className="h-4 w-4 text-[#a56308] dark:text-amber-500" />
                     ) : null}
                     {item.title}
                   </h3>
-                  <p className="m-0 mt-1.5 text-[0.84rem] leading-5 text-[#5b6b61]">
+                  <p className="m-0 mt-1.5 text-[0.84rem] leading-5 text-[#5b6b61] dark:text-[#8da398]">
                     {item.body}
                   </p>
                 </div>

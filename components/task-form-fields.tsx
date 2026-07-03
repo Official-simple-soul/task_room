@@ -7,7 +7,7 @@ import {
   compatibleStepRangeForBucket,
   sortProjectBuckets,
 } from '@/lib/projects';
-import { inputClass, labelClass } from '@/lib/styles';
+import { cn, inputClass, labelClass } from '@/lib/styles';
 import type { Project, ProjectBucket } from '@/lib/types';
 
 type TaskFormDefaults = {
@@ -97,7 +97,7 @@ export function TaskFormFields({
       <label className={labelClass}>
         Project
         <select
-          className={inputClass}
+          className={cn(inputClass, 'dark:bg-[#131b17]')}
           name="project_id"
           required
           value={projectId}
@@ -112,7 +112,7 @@ export function TaskFormFields({
           }}
         >
           {projects.map((project) => (
-            <option key={project.id} value={project.id}>
+            <option key={project.id} value={project.id} className="dark:bg-[#131b17]">
               {project.name}
             </option>
           ))}
@@ -121,7 +121,7 @@ export function TaskFormFields({
       <label className={labelClass}>
         Expected steps
         <select
-          className={inputClass}
+          className={cn(inputClass, 'dark:bg-[#131b17]')}
           name="task_bucket_id"
           required
           value={bucketId}
@@ -134,7 +134,7 @@ export function TaskFormFields({
           }}
         >
           {selectedBuckets.map((bucket) => (
-            <option key={bucket.id} value={bucket.id}>
+            <option key={bucket.id} value={bucket.id} className="dark:bg-[#131b17]">
               {bucketLabel(bucket)} steps | ${bucketFeeDollars(bucket)}
             </option>
           ))}

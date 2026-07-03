@@ -9,6 +9,7 @@ import { TaskFormFields } from '@/components/task-form-fields';
 import { TaskRateAnnouncement } from '@/components/task-rate-announcement';
 import { findProjectBySlug, getActiveProjects } from '@/lib/projects';
 import {
+  cn,
   fieldGridClass,
   inputClass,
   labelClass,
@@ -52,10 +53,10 @@ export default async function AssignTaskPage({
       <TaskRateAnnouncement project={selectedProject} />
       <section className={panelClass}>
         <div className="mb-6 flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/10 dark:text-[#10b981]">
             <ClipboardIcon className="h-5 w-5" />
           </span>
-          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+          <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
             Task details
           </h2>
         </div>
@@ -63,10 +64,10 @@ export default async function AssignTaskPage({
           <input type="hidden" name="return_path" value={tasksPath} />
           <label className={labelClass}>
             Assign to
-            <select className={inputClass} name="assigned_to" required>
-              <option value="">Select worker</option>
+            <select className={cn(inputClass, 'dark:bg-[#131b17]')} name="assigned_to" required>
+              <option value="" className="dark:bg-[#131b17]">Select worker</option>
               {((users ?? []) as UserOption[]).map((u) => (
-                <option key={u.id} value={u.id}>
+                <option key={u.id} value={u.id} className="dark:bg-[#131b17]">
                   {u.full_name}
                 </option>
               ))}

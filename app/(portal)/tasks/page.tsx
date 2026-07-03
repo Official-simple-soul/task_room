@@ -72,17 +72,17 @@ const projectStatusMeta: Record<
 > = {
   in_progress: {
     label: 'In progress',
-    tone: 'border-[#bfe1cc] bg-[#eff9f0] text-[#11664b]',
+    tone: 'border-[#bfe1cc] bg-[#eff9f0] text-[#11664b] dark:border-[#10b981]/25 dark:bg-[#10b981]/8 dark:text-[#10b981]',
     note: 'This project is active and available for normal task work.',
   },
   paused: {
     label: 'Paused',
-    tone: 'border-[#f3d79d] bg-[#fff8ea] text-[#9a6408]',
+    tone: 'border-[#f3d79d] bg-[#fff8ea] text-[#9a6408] dark:border-[#ff9800]/25 dark:bg-[#ff9800]/8 dark:text-[#ffb74d]',
     note: 'This project is paused. Existing work remains visible, but new activity may be temporarily limited.',
   },
   closed: {
     label: 'Closed',
-    tone: 'border-[#f2c9c9] bg-[#fff3f3] text-[#ae3939]',
+    tone: 'border-[#f2c9c9] bg-[#fff3f3] text-[#ae3939] dark:border-[#ef4444]/25 dark:bg-[#ef4444]/8 dark:text-[#fca5a5]',
     note: 'This project is closed. Existing records remain visible for reference.',
   },
 };
@@ -108,25 +108,25 @@ function TaskStatusFilter({
 
   return (
     <nav
-      className="my-4 mb-[1.4rem] flex flex-wrap gap-3 rounded-2xl border border-[rgba(17,102,75,0.12)] bg-[rgba(17,102,75,0.08)] p-[0.95rem]"
+      className="my-4 mb-[1.4rem] flex flex-wrap gap-2.5 rounded-2xl border border-[#edf3ef] bg-[#11664b]/6 p-3 dark:border-[#222c26] dark:bg-[#10b981]/4"
       aria-label="Filter tasks by status"
     >
       <Link
         href={hrefForStatus()}
         className={cn(
-          'inline-flex items-center gap-[0.55rem] rounded-full border px-4 py-3 text-[0.9rem] font-semibold transition hover:-translate-y-px hover:border-[rgba(17,102,75,0.15)]',
+          'inline-flex items-center gap-[0.55rem] rounded-full border px-4 py-2 text-[0.88rem] font-semibold transition hover:-translate-y-px',
           !status
-            ? 'border-[#11664b] bg-[#11664b] text-white shadow-sm'
-            : 'border-transparent bg-white text-[#405247] hover:bg-white',
+            ? 'border-[#11664b] bg-[#11664b] text-white shadow-sm dark:border-[#10b981] dark:bg-[#10b981] dark:text-[#060a08]'
+            : 'border-transparent bg-white text-[#405247] hover:bg-white hover:border-[#11664b]/20 dark:bg-[#131b17] dark:text-[#8da398] dark:hover:bg-[#1a2520] dark:hover:text-[#10b981]',
         )}
       >
         All{' '}
         <span
           className={cn(
-            'min-w-8 rounded-full px-[0.55rem] py-[0.18rem] text-center text-[0.78rem] font-bold',
+            'min-w-7 rounded-full px-2 py-0.5 text-center text-[0.74rem] font-extrabold',
             !status
-              ? 'bg-[rgba(255,255,255,0.25)] text-white'
-              : 'bg-[rgba(17,102,75,0.12)] text-[#11664b]',
+              ? 'bg-white/20 text-white dark:bg-[#060a08]/15 dark:text-[#060a08]'
+              : 'bg-[#11664b]/10 text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]',
           )}
         >
           {tasks.length}
@@ -136,20 +136,20 @@ function TaskStatusFilter({
         <Link
           href={hrefForStatus(option)}
           className={cn(
-            'inline-flex items-center gap-[0.55rem] rounded-full border px-4 py-3 text-[0.9rem] font-semibold transition hover:-translate-y-px hover:border-[rgba(17,102,75,0.15)]',
+            'inline-flex items-center gap-[0.55rem] rounded-full border px-4 py-2 text-[0.88rem] font-semibold transition hover:-translate-y-px',
             status === option
-              ? 'border-[#11664b] bg-[#11664b] text-white shadow-sm'
-              : 'border-transparent bg-white text-[#405247] hover:bg-white',
+              ? 'border-[#11664b] bg-[#11664b] text-white shadow-sm dark:border-[#10b981] dark:bg-[#10b981] dark:text-[#060a08]'
+              : 'border-transparent bg-white text-[#405247] hover:bg-white hover:border-[#11664b]/20 dark:bg-[#131b17] dark:text-[#8da398] dark:hover:bg-[#1a2520] dark:hover:text-[#10b981]',
           )}
           key={option}
         >
           {statusLabels[option]}{' '}
           <span
             className={cn(
-              'min-w-8 rounded-full px-[0.55rem] py-[0.18rem] text-center text-[0.78rem] font-bold',
+              'min-w-7 rounded-full px-2 py-0.5 text-center text-[0.74rem] font-extrabold',
               status === option
-                ? 'bg-[rgba(255,255,255,0.25)] text-white'
-                : 'bg-[rgba(17,102,75,0.12)] text-[#11664b]',
+                ? 'bg-white/20 text-white dark:bg-[#060a08]/15 dark:text-[#060a08]'
+                : 'bg-[#11664b]/10 text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]',
             )}
           >
             {tasks.filter((task) => task.status === option).length}
@@ -191,45 +191,45 @@ function TaskList({
         {tasks.map((task) => (
           <details
             className={cn(
-              'group border-b border-[#edf1ee] bg-white last:border-b-0 open:bg-[#fbfdfb]',
+              'group border-b border-[#edf1ee] bg-white last:border-b-0 open:bg-[#fbfdfb] dark:border-[#222c26] dark:bg-[#0f1512] dark:open:bg-[#131b17]/60 transition-all duration-250',
               statusBorderClass[task.status],
             )}
             key={task.id}
           >
-            <summary className="grid cursor-pointer list-none grid-cols-[1fr_auto] items-center gap-4 px-4 py-3 transition hover:bg-[#f6fbf6] sm:grid-cols-[1.1fr_1fr_auto] [&::-webkit-details-marker]:hidden">
+            <summary className="grid cursor-pointer list-none grid-cols-[1fr_auto] items-center gap-4 px-4 py-3.5 transition hover:bg-[#f6fbf6] dark:hover:bg-[#1a2520]/40 sm:grid-cols-[1.1fr_1fr_auto] [&::-webkit-details-marker]:hidden">
               <div className="min-w-0">
-                <p className="m-0 truncate text-[0.98rem] font-bold text-[#16221d]">
+                <p className="m-0 truncate text-[0.98rem] font-bold text-[#16221d] dark:text-[#ecf2ee]">
                   {task.external_task_id}
                 </p>
-                <p className="m-0 mt-1 truncate text-[0.82rem] text-[#68766e]">
+                <p className="m-0 mt-1 truncate text-[0.82rem] text-[#68766e] dark:text-[#8da398]">
                   {task.task_language} | {task.step_range} steps
                   {task.application ? ` | ${task.application}` : ''}
                 </p>
               </div>
-              <div className="hidden min-w-0 text-[0.84rem] text-[#68766e] sm:block">
-                <span className="font-semibold text-[#405247]">
+              <div className="hidden min-w-0 text-[0.84rem] text-[#68766e] dark:text-[#8da398] sm:block">
+                <span className="font-semibold text-[#11664b] dark:text-[#10b981]">
                   {money(task.fee_cents)}
                 </span>{' '}
                 | {dateLabel(task.created_at)} | {task.rework_count} reworks
                 {showAssignee ? (
                   <span className="block truncate">
-                    Assigned:{' '}
+                    Worker:{' '}
                     {assigneeNames[task.assigned_to] ?? task.assigned_to}
                   </span>
                 ) : null}
               </div>
               <div className="flex items-center gap-2">
                 <StatusPill status={task.status} />
-                <span className="hidden text-[0.8rem] font-semibold text-[#11664b] group-open:hidden md:inline">
+                <span className="hidden text-[0.8rem] font-bold text-[#11664b] dark:text-[#10b981] group-open:hidden md:inline">
                   View
                 </span>
-                <span className="hidden text-[0.8rem] font-semibold text-[#68766e] group-open:inline md:inline">
+                <span className="hidden text-[0.8rem] font-bold text-[#68766e] dark:text-[#8da398] group-open:inline md:inline">
                   Close
                 </span>
               </div>
             </summary>
 
-            <div className="border-t border-[#edf1ee] px-4 py-5">
+            <div className="border-t border-[#edf1ee] dark:border-[#222c26] px-4 py-5">
               <TaskPrompt prompt={task.prompt} />
               <dl className={taskMetaClass}>
                 <div>
@@ -286,19 +286,19 @@ function TaskList({
               {showAssignee && task.status === 'pending' && (
                 <form
                   action={reassignTask.bind(null, task.id)}
-                  className="mt-4 grid gap-4 rounded-2xl border border-[#edf1ee] bg-white/90 p-4 shadow-[0_10px_30px_rgba(17,102,75,0.05)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
+                  className="mt-4 grid gap-4 rounded-2xl border border-[#edf1ee] dark:border-[#222c26] bg-[#fbfdfb] dark:bg-[#131b17] p-4 shadow-[0_10px_30px_rgba(17,102,75,0.02)] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end"
                 >
                   <input type="hidden" name="return_path" value={returnPath} />
                   <label className={labelClass}>
                     Reassign pending task
                     <select
-                      className={inputClass}
+                      className={cn(inputClass, 'dark:bg-[#1a231f]')}
                       name="assigned_to"
                       defaultValue={task.assigned_to}
                       required
                     >
                       {users.map((user) => (
-                        <option key={user.id} value={user.id}>
+                        <option key={user.id} value={user.id} className="dark:bg-[#131b17]">
                           {user.full_name || 'Unnamed worker'}
                         </option>
                       ))}
@@ -403,18 +403,18 @@ export default async function TasksPage({
           tasks={tasks}
           projectSlug={projectSlug}
         />
-        <section className="my-6 flex flex-col gap-5 rounded-[14px] border border-[rgba(17,102,75,0.14)] bg-[linear-gradient(135deg,rgba(231,243,237,0.9)_0%,rgba(255,255,255,0.95)_100%)] p-[1.8rem] shadow-[0_2px_8px_rgba(22,34,29,0.04)] sm:flex-row sm:items-center sm:justify-between">
+        <section className="my-6 flex flex-col gap-5 rounded-2xl border border-[#edf3ef] bg-[linear-gradient(135deg,rgba(231,243,237,0.7)_0%,rgba(255,255,255,0.85)_100%)] dark:border-[#1d2721] dark:bg-[linear-gradient(135deg,#13281f_0%,rgba(15,21,18,0.4)_100%)] p-[1.8rem] shadow-[0_4px_20px_rgba(22,34,29,0.02)] sm:flex-row sm:items-center sm:justify-between transition-all duration-300">
           <div>
             <p className={eyebrowClass}>Task summary</p>
             <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#11664b] shadow-[0_10px_24px_rgba(17,102,75,0.10)]">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#11664b] shadow-[0_10px_24px_rgba(17,102,75,0.08)] dark:bg-[#0f1512] dark:text-[#10b981] dark:shadow-none">
                 <ClipboardIcon className="h-5 w-5" />
               </span>
-              <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em]">
+              <h2 className="m-0 text-[1.15rem] font-semibold tracking-[-0.025em] text-[#16221d] dark:text-[#ecf2ee]">
                 {displayedTasks.length} visible tasks
               </h2>
             </div>
-            <p className="mt-2.5 max-w-[520px] text-[0.95rem] leading-[1.7] text-[#68766e]">
+            <p className="mt-2.5 max-w-[520px] text-[0.95rem] leading-[1.7] text-[#68766e] dark:text-[#8da398]">
               Click a task row to expand the URL, prompt, payment, rework count,
               and available review actions.
             </p>
@@ -561,8 +561,8 @@ export default async function TasksPage({
       />
       <Message notice={notice} error={error} />
       <TaskRateAnnouncement project={selectedProject} />
-      <section className="mb-5 rounded-2xl border border-[#f3d79d] bg-[#fff8ea] px-4 py-3 text-[0.92rem] leading-6 text-[#6a4a12]">
-        <strong className="text-[#9a6408]">Quality reminder:</strong> tasks sent
+      <section className="mb-5 rounded-2xl border border-[#f3d79d] bg-[#fff8ea] px-4 py-3 text-[0.92rem] leading-6 text-[#6a4a12] dark:border-[#ff9800]/25 dark:bg-[#ff9800]/8 dark:text-amber-200">
+        <strong className="text-[#9a6408] dark:text-amber-400">Quality reminder:</strong> tasks sent
         back for rework more than once may have their fee reduced. Review the
         prompt carefully before submitting.
       </section>
