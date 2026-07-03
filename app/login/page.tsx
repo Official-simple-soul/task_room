@@ -1,4 +1,5 @@
 import { AuthForm } from '@/components/auth-form';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function LoginPage() {
   return (
@@ -15,6 +16,9 @@ export default function LoginPage() {
       <section className="grid gap-4">
         <AuthForm />
       </section>
+      <div className="fixed bottom-6 right-6">
+        <ThemeToggle variant="icon" />
+      </div>
     </main>
   );
 }
