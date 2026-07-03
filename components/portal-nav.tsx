@@ -97,6 +97,20 @@ export function PortalNav({ isAdmin, projects }: PortalNavProps) {
                 })}
               </div>
             ) : null}
+            {link.href === '/payments' ? (
+              <div className="ml-8 mt-1.5 grid gap-1 border-l border-[#e2e8e3] dark:border-[#222c26] pl-3">
+                <Link
+                  className={cn(
+                    'truncate rounded-lg px-3 py-1.5 text-[0.82rem] font-semibold text-[#68766e] dark:text-[#8da398] transition hover:bg-[#f6fbf7] hover:text-[#11664b] dark:hover:bg-[#1a2520] dark:hover:text-[#10b981]',
+                    activePath === '/payments/summary' &&
+                      'bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]',
+                  )}
+                  href="/payments/summary"
+                >
+                  Monthly summary
+                </Link>
+              </div>
+            ) : null}
           </div>
         );
       })}

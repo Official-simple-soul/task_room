@@ -64,6 +64,7 @@ export type Task = {
   completed_at: string | null;
   review_started_at: string | null;
   reviewed_at: string | null;
+  approved_at: string | null;
 };
 
 export type MonthlyMetric = {
