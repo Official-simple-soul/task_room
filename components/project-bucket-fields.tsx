@@ -146,7 +146,7 @@ export function ProjectBucketFields({
             </label>
           </div>
           <FaTrash
-            // className={`${dangerButtonClass} self-end px-4`}
+            className="cursor-pointer"
             type="button"
             color="red"
             onClick={() => removeRow(index)}

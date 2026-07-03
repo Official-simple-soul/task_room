@@ -91,7 +91,7 @@ export function TaskRulesSidebar() {
         type="button"
         onClick={() => setOpen(true)}
         className={cn(
-          'fixed right-4 top-24 z-40 inline-flex items-center gap-2 rounded-full border border-[#d9e8df] bg-white px-4 py-2.5 text-[0.88rem] font-bold text-[#11664b] shadow-[0_10px_30px_rgba(22,34,29,0.08)] transition hover:-translate-y-px hover:border-[#11664b] dark:border-[#222c26] dark:bg-[#131b17] dark:text-[#10b981] dark:shadow-none dark:hover:border-[#10b981]',
+          'fixed right-4 top-24 z-40 inline-flex cursor-pointer items-center gap-2 rounded-full border border-[#d9e8df] bg-white px-4 py-2.5 text-[0.88rem] font-bold text-[#11664b] shadow-[0_10px_30px_rgba(22,34,29,0.08)] transition hover:-translate-y-px hover:border-[#11664b] dark:border-[#222c26] dark:bg-[#131b17] dark:text-[#10b981] dark:shadow-none dark:hover:border-[#10b981]',
           open && 'pointer-events-none opacity-0',
         )}
       >
@@ -126,7 +126,7 @@ export function TaskRulesSidebar() {
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-full bg-white/12 p-2 text-white transition hover:bg-white/20"
+              className="cursor-pointer rounded-full bg-white/12 p-2 text-white transition hover:bg-white/20"
               aria-label="Close task rules"
             >
               <XCircleIcon className="h-5 w-5" />

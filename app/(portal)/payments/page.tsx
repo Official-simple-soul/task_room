@@ -141,7 +141,7 @@ export default async function PaymentsPage({
                     </span>
                     <button
                       type="submit"
-                      className="text-[0.8rem] font-semibold text-[#11664b] hover:underline dark:text-[#10b981]"
+                      className="cursor-pointer text-[0.8rem] font-semibold text-[#11664b] hover:underline dark:text-[#10b981]"
                     >
                       Mark as {payment.status === 'paid' ? 'Due' : 'Paid'}
                     </button>

@@ -89,7 +89,7 @@ function MessageToast({
       <button
         type="button"
         onClick={close}
-        className="absolute right-3 top-3 rounded-full p-1.5 opacity-70 transition hover:bg-black/5 hover:opacity-100"
+        className="absolute right-3 top-3 cursor-pointer rounded-full p-1.5 opacity-70 transition hover:bg-black/5 hover:opacity-100"
         aria-label="Close notification"
       >
         <XCircleIcon className="h-4 w-4" />
