@@ -64,9 +64,9 @@ export function PortalNav({ isAdmin, projects }: PortalNavProps) {
             <Link
               href={link.href}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-[0.95rem] py-[0.85rem] text-[0.96rem] font-[550] text-[#475a50] transition hover:translate-x-px hover:bg-[rgba(17,102,75,0.08)] hover:text-[#11664b]',
+                'flex items-center gap-3 rounded-xl px-[0.95rem] py-[0.85rem] text-[0.96rem] font-[550] text-[#475a50] dark:text-[#8da398] transition-all duration-200 hover:translate-x-0.5 hover:bg-[rgba(17,102,75,0.06)] hover:text-[#11664b] dark:hover:bg-[#10b981]/8 dark:hover:text-[#10b981]',
                 linkActive &&
-                  'border-l-4 border-[#11664b] bg-[rgba(17,102,75,0.12)] pl-[0.85rem] font-bold text-[#11664b] hover:translate-x-0',
+                  'border-l-4 border-[#11664b] bg-[rgba(17,102,75,0.1)] pl-[0.85rem] font-bold text-[#11664b] hover:translate-x-0 dark:border-[#10b981] dark:bg-[#10b981]/10 dark:text-[#10b981]',
               )}
               aria-current={linkActive ? 'page' : undefined}
             >
@@ -74,7 +74,7 @@ export function PortalNav({ isAdmin, projects }: PortalNavProps) {
               {link.label}
             </Link>
             {link.href === '/tasks' && projects.length ? (
-              <div className="ml-8 mt-1 grid gap-1 border-l border-[#e2e8e3] pl-3">
+              <div className="ml-8 mt-1.5 grid gap-1 border-l border-[#e2e8e3] dark:border-[#222c26] pl-3">
                 {projects.map((project, index) => {
                   const href = `/tasks?project=${project.slug}`;
                   const projectActive =
@@ -85,8 +85,8 @@ export function PortalNav({ isAdmin, projects }: PortalNavProps) {
                   return (
                     <Link
                       className={cn(
-                        'truncate rounded-lg px-3 py-2 text-[0.82rem] font-semibold text-[#68766e] transition hover:bg-[#f6fbf7] hover:text-[#11664b]',
-                        projectActive && 'bg-[#e7f3ed] text-[#11664b]',
+                        'truncate rounded-lg px-3 py-1.5 text-[0.82rem] font-semibold text-[#68766e] dark:text-[#8da398] transition hover:bg-[#f6fbf7] hover:text-[#11664b] dark:hover:bg-[#1a2520] dark:hover:text-[#10b981]',
+                        projectActive && 'bg-[#e7f3ed] text-[#11664b] dark:bg-[#10b981]/15 dark:text-[#10b981]',
                       )}
                       href={href}
                       key={project.id}

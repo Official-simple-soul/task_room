@@ -23,18 +23,18 @@ export default async function PortalLayout({
     <div className="min-h-screen lg:grid lg:grid-cols-[248px_1fr]">
       <RealtimeRefresh />
       <FormScrollRestoration />
-      <aside className="border-r border-[#e2e8e3] bg-white px-[1.5rem] py-[1.3rem] lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:px-[1.4rem] lg:py-8">
+      <aside className="border-r border-[#e2e8e3] bg-white px-[1.5rem] py-[1.3rem] lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:px-[1.4rem] lg:py-8 dark:border-[#222c26] dark:bg-[#0f1512]">
         <Link href="/dashboard" className={brandClass}>
           TaskRoom
         </Link>
         <div className="my-4 flex items-center gap-3 lg:my-0 lg:mb-[1.9rem] lg:mt-[2.7rem]">
-          <span className="relative flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#11664b,#0a513b)] text-white shadow-[0_10px_24px_rgba(17,102,75,0.22)]">
+          <span className="relative flex size-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,#11664b,#0a513b)] text-white shadow-[0_10px_24px_rgba(17,102,75,0.22)] dark:bg-[linear-gradient(135deg,#10b981,#0b5e43)] dark:text-[#060a08] dark:shadow-[0_10px_24px_rgba(16,185,129,0.15)]">
             <UserIcon className="size-6" />
-            <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#15b46a]" />
+            <span className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#15b46a] dark:border-[#0f1512]" />
           </span>
-          <p className="m-0 text-[0.86rem] font-semibold">
+          <p className="m-0 text-[0.86rem] font-semibold text-[#16221d] dark:text-[#ecf2ee]">
             {profile.full_name.split(' ')[0] || 'Account'}
-            <span className="mt-1 block text-[0.8rem] font-normal text-[#68766e]">
+            <span className="mt-1 block text-[0.8rem] font-normal text-[#68766e] dark:text-[#8da398]">
               {admin ? 'Administrator' : 'Worker'}
             </span>
           </p>
