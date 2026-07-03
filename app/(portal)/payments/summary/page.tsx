@@ -13,37 +13,8 @@ import {
   tdClass,
   thClass,
 } from '@/lib/styles';
+import { monthKey, taskEffectiveMonth, type MonthBucketedTask } from '@/lib/task-months';
 import type { TaskStatus } from '@/lib/types';
-
-const lagosMonthFormatter = new Intl.DateTimeFormat('en-US', {
-  timeZone: 'Africa/Lagos',
-  year: 'numeric',
-  month: '2-digit',
-});
-
-function monthKey(value: string) {
-  const parts = Object.fromEntries(
-    lagosMonthFormatter.formatToParts(new Date(value)).map((part) => [part.type, part.value]),
-  );
-  return `${parts.year}-${parts.month}`;
-}
-
-type SummaryTask = {
-  assigned_to: string;
-  status: TaskStatus;
-  fee_cents: number;
-  created_at: string;
-  claimed_at: string | null;
-  completed_at: string | null;
-  reviewed_at: string | null;
-  approved_at: string | null;
-};
-
-function effectiveDate(task: SummaryTask) {
-  return (
-    task.approved_at ?? task.reviewed_at ?? task.completed_at ?? task.claimed_at ?? task.created_at
-  );
-}
 
 export default async function PaymentsSummaryPage({
   searchParams,
@@ -69,8 +40,8 @@ export default async function PaymentsSummaryPage({
   const selectedStatus: TaskStatus | 'all' =
     status === 'all' || (status && status in statusLabels) ? (status as TaskStatus | 'all') : 'approved';
 
-  const monthTasks = ((summaryTasks ?? []) as SummaryTask[]).filter(
-    (task) => monthKey(effectiveDate(task)) === selectedMonth,
+  const monthTasks = ((summaryTasks ?? []) as MonthBucketedTask[]).filter(
+    (task) => taskEffectiveMonth(task) === selectedMonth,
   );
 
   const taskSummary = (users ?? []).map((user) => {
