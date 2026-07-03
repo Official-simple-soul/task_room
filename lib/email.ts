@@ -22,6 +22,7 @@ export type PaymentEmailPayload = {
   status: PaymentEmailStatus;
   amountCents: number;
   paymentMonth: string;
+  note?: string | null;
 };
 
 const statusCopy: Record<
@@ -202,6 +203,7 @@ function renderPaymentEmail(payload: PaymentEmailPayload) {
   const worker = payload.workerName?.trim() || 'there';
   const amount = money(payload.amountCents);
   const month = monthLabel(payload.paymentMonth);
+  const note = payload.note?.trim();
 
   const intro =
     payload.status === 'due'
@@ -227,6 +229,11 @@ function renderPaymentEmail(payload: PaymentEmailPayload) {
         </td>
       </tr>
     </table>
+    ${
+      note
+        ? `<div style="margin-top:18px;border-left:4px solid #a56308;background:#fff8ea;padding:14px 16px;border-radius:0 12px 12px 0;color:#5e4826"><strong>Note</strong><br>${escapeHtml(note)}</div>`
+        : ''
+    }
   `;
 
   return emailShell({

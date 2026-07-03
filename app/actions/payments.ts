@@ -12,6 +12,7 @@ type PaymentEmailRow = {
   payment_month: string;
   amount_cents: number;
   status: "due" | "paid";
+  note: string | null;
 };
 
 async function queuePaymentEmail(
@@ -41,6 +42,7 @@ async function queuePaymentEmail(
     status: payment.status,
     amountCents: payment.amount_cents,
     paymentMonth: payment.payment_month,
+    note: payment.note,
   });
 }
 
@@ -72,7 +74,7 @@ export async function recordPayment(formData: FormData) {
       },
       { onConflict: "user_id,payment_month" },
     )
-    .select("user_id, payment_month, amount_cents, status")
+    .select("user_id, payment_month, amount_cents, status, note")
     .single();
 
   if (error) redirect(`/payments?error=${encodeURIComponent(error.message)}`);
@@ -99,7 +101,7 @@ export async function updatePaymentStatus(formData: FormData) {
       paid_at: value.status === "paid" ? new Date().toISOString() : null,
     })
     .eq("id", value.payment_id)
-    .select("user_id, payment_month, amount_cents, status")
+    .select("user_id, payment_month, amount_cents, status, note")
     .single();
 
   if (error) redirect(`/payments?error=${encodeURIComponent(error.message)}`);
