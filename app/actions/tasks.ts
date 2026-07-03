@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { after } from 'next/server';
 import { z } from 'zod';
 import { requireProfile } from '@/lib/auth';
 import { sendTaskEmail, type TaskEmailPayload } from '@/lib/email';
@@ -145,31 +144,45 @@ async function reviewPricingForTask(
   };
 }
 
-function queueTaskEmail(
+async function queueTaskEmail(
   supabase: SupabaseClient,
   task: TaskEmailRow | null | undefined,
   status: TaskEmailPayload['status'],
   comment?: string | null,
 ) {
-  if (!task) return;
+  if (!task) {
+    console.warn('[task-email] skipped: no task row returned from the write.');
+    return;
+  }
 
-  after(async () => {
-    const { data: worker } = await supabase
-      .from('profiles')
-      .select('full_name, email')
-      .eq('id', task.assigned_to)
-      .maybeSingle();
+  console.log(
+    `[task-email] preparing notification: task=${task.external_task_id} status=${status} user=${task.assigned_to}`,
+  );
 
-    await sendTaskEmail({
-      to: worker?.email,
-      workerName: worker?.full_name,
-      taskId: task.external_task_id,
-      status,
-      language: task.task_language,
-      stepRange: task.step_range,
-      feeCents: task.fee_cents,
-      comment,
-    });
+  const { data: worker, error } = await supabase
+    .from('profiles')
+    .select('full_name, email')
+    .eq('id', task.assigned_to)
+    .maybeSingle();
+
+  if (error) {
+    console.error(`[task-email] failed to load worker profile ${task.assigned_to}: ${error.message}`);
+    return;
+  }
+  if (!worker?.email) {
+    console.warn(`[task-email] skipped: worker ${task.assigned_to} has no email on file.`);
+    return;
+  }
+
+  await sendTaskEmail({
+    to: worker.email,
+    workerName: worker.full_name,
+    taskId: task.external_task_id,
+    status,
+    language: task.task_language,
+    stepRange: task.step_range,
+    feeCents: task.fee_cents,
+    comment,
   });
 }
 
@@ -228,7 +241,7 @@ export async function addTask(userId: string, formData: FormData) {
     .single();
 
   if (error) notice(path, error.message, true);
-  queueTaskEmail(supabase, data, 'assigned');
+  await queueTaskEmail(supabase, data, 'assigned');
   revalidatePath(path);
   revalidatePath('/users');
   notice(path, 'Task assigned successfully.');
@@ -267,7 +280,7 @@ export async function addTaskGlobal(formData: FormData) {
     .single();
 
   if (error) notice(path, error.message, true);
-  queueTaskEmail(supabase, data, 'assigned');
+  await queueTaskEmail(supabase, data, 'assigned');
   revalidatePath(path);
   revalidatePath(`/users/${assigned_to}`);
   notice(path, 'Task assigned successfully.');
@@ -336,7 +349,7 @@ export async function reassignTask(taskId: string, formData: FormData) {
     notice(returnPath, 'Only pending tasks can be reassigned.', true);
   }
 
-  queueTaskEmail(supabase, data, 'assigned');
+  await queueTaskEmail(supabase, data, 'assigned');
   revalidatePath(returnPath);
   revalidatePath('/tasks');
   revalidatePath(`/users/${assignedTo}`);
@@ -417,7 +430,7 @@ export async function startReview(
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
     .maybeSingle();
   if (error) notice(returnPath, error.message, true);
-  queueTaskEmail(supabase, data, 'under_review');
+  await queueTaskEmail(supabase, data, 'under_review');
   revalidatePath(`/users/${userId}`);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');
@@ -457,7 +470,7 @@ export async function decideTask(
     .select('external_task_id, assigned_to, task_language, step_range, fee_cents')
     .maybeSingle();
   if (error) notice(returnPath, error.message, true);
-  queueTaskEmail(supabase, data, status, comment);
+  await queueTaskEmail(supabase, data, status, comment);
   revalidatePath(`/users/${userId}`);
   revalidatePath('/tasks');
   revalidatePath('/dashboard');

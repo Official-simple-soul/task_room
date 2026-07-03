@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { after } from "next/server";
 import { z } from "zod";
 import { requireProfile } from "@/lib/auth";
 import { sendPaymentEmail } from "@/lib/email";
@@ -15,26 +14,40 @@ type PaymentEmailRow = {
   status: "due" | "paid";
 };
 
-function queuePaymentEmail(
+async function queuePaymentEmail(
   supabase: SupabaseClient,
   payment: PaymentEmailRow | null | undefined,
 ) {
-  if (!payment) return;
+  if (!payment) {
+    console.warn("[payment-email] skipped: no payment row returned from the write.");
+    return;
+  }
 
-  after(async () => {
-    const { data: worker } = await supabase
-      .from("profiles")
-      .select("full_name, email")
-      .eq("id", payment.user_id)
-      .maybeSingle();
+  console.log(
+    `[payment-email] preparing notification: user=${payment.user_id} status=${payment.status} month=${payment.payment_month}`,
+  );
 
-    await sendPaymentEmail({
-      to: worker?.email,
-      workerName: worker?.full_name,
-      status: payment.status,
-      amountCents: payment.amount_cents,
-      paymentMonth: payment.payment_month,
-    });
+  const { data: worker, error } = await supabase
+    .from("profiles")
+    .select("full_name, email")
+    .eq("id", payment.user_id)
+    .maybeSingle();
+
+  if (error) {
+    console.error(`[payment-email] failed to load worker profile ${payment.user_id}: ${error.message}`);
+    return;
+  }
+  if (!worker?.email) {
+    console.warn(`[payment-email] skipped: worker ${payment.user_id} has no email on file.`);
+    return;
+  }
+
+  await sendPaymentEmail({
+    to: worker.email,
+    workerName: worker.full_name,
+    status: payment.status,
+    amountCents: payment.amount_cents,
+    paymentMonth: payment.payment_month,
   });
 }
 
@@ -70,7 +83,7 @@ export async function recordPayment(formData: FormData) {
     .single();
 
   if (error) redirect(`/payments?error=${encodeURIComponent(error.message)}`);
-  queuePaymentEmail(supabase, data);
+  await queuePaymentEmail(supabase, data);
   revalidatePath("/payments");
   redirect("/payments?notice=Monthly%20payment%20saved.");
 }
@@ -97,7 +110,7 @@ export async function updatePaymentStatus(formData: FormData) {
     .single();
 
   if (error) redirect(`/payments?error=${encodeURIComponent(error.message)}`);
-  queuePaymentEmail(supabase, data);
+  await queuePaymentEmail(supabase, data);
   revalidatePath("/payments");
   redirect("/payments?notice=Payment%20status%20updated.");
 }

@@ -245,34 +245,53 @@ async function sendBrevoEmail(options: {
   toName: string | null | undefined;
   subject: string;
   htmlContent: string;
-  skipLogMessage: string;
 }) {
+  const tag = `[email:${options.subject}]`;
   const apiKey = process.env.BREVO_API_KEY;
   const senderEmail = process.env.BREVO_SENDER_EMAIL;
   const senderName = process.env.BREVO_SENDER_NAME ?? 'TaskRoom';
 
-  if (!options.to || !apiKey || !senderEmail) {
-    console.warn(options.skipLogMessage);
+  if (!options.to) {
+    console.warn(`${tag} skipped: no recipient email address on file.`);
     return;
   }
 
-  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'api-key': apiKey,
-    },
-    body: JSON.stringify({
-      sender: { email: senderEmail, name: senderName },
-      to: [{ email: options.to, name: options.toName || undefined }],
-      subject: options.subject,
-      htmlContent: options.htmlContent,
-    }),
-  });
+  if (!apiKey || !senderEmail) {
+    console.warn(
+      `${tag} skipped: missing Brevo config in this environment ` +
+        `(BREVO_API_KEY=${apiKey ? 'set' : 'MISSING'}, BREVO_SENDER_EMAIL=${senderEmail ? 'set' : 'MISSING'}). ` +
+        `Set these in Netlify site settings > Environment variables and redeploy.`,
+    );
+    return;
+  }
 
-  if (!response.ok) {
-    const body = await response.text();
-    console.error(`Brevo email failed (${response.status}): ${body}`);
+  console.log(`${tag} sending to ${options.to}...`);
+
+  try {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': apiKey,
+      },
+      body: JSON.stringify({
+        sender: { email: senderEmail, name: senderName },
+        to: [{ email: options.to, name: options.toName || undefined }],
+        subject: options.subject,
+        htmlContent: options.htmlContent,
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text();
+      console.error(`${tag} Brevo rejected the send (HTTP ${response.status}): ${body}`);
+      return;
+    }
+
+    const result = (await response.json().catch(() => null)) as { messageId?: string } | null;
+    console.log(`${tag} sent to ${options.to} (messageId=${result?.messageId ?? 'unknown'}).`);
+  } catch (err) {
+    console.error(`${tag} request to Brevo threw an error: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 
@@ -283,7 +302,6 @@ export async function sendTaskEmail(payload: TaskEmailPayload) {
     toName: payload.workerName,
     subject: `${copy.subject}: ${payload.taskId}`,
     htmlContent: renderTaskEmail(payload),
-    skipLogMessage: 'Task email skipped: missing recipient or Brevo configuration.',
   });
 }
 
@@ -294,6 +312,5 @@ export async function sendPaymentEmail(payload: PaymentEmailPayload) {
     toName: payload.workerName,
     subject: `${copy.subject}: ${monthLabel(payload.paymentMonth)}`,
     htmlContent: renderPaymentEmail(payload),
-    skipLogMessage: 'Payment email skipped: missing recipient or Brevo configuration.',
   });
 }
