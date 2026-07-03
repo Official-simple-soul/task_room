@@ -6,7 +6,8 @@ import { FormScrollRestoration } from '@/components/scroll-restoration';
 import { SubmitButton } from '@/components/submit-button';
 import { requireProfile } from '@/lib/auth';
 import { getActiveProjects } from '@/lib/projects';
-import { brandClass, textButtonClass } from '@/lib/styles';
+import { brandClass, cn, textButtonClass } from '@/lib/styles';
+import { ThemeToggle } from '@/components/theme-toggle';
 import Link from 'next/link';
 
 export default async function PortalLayout({
@@ -39,14 +40,18 @@ export default async function PortalLayout({
           </p>
         </div>
         <PortalNav isAdmin={admin} projects={projects} />
-        <form action={logout} className="mt-2 lg:mt-auto">
-          <SubmitButton
-            label="Sign out"
-            pendingLabel="Signing out..."
-            baseClassName={textButtonClass}
-          />
-        </form>
+        <div className="mt-6 lg:mt-auto grid gap-3">
+          <ThemeToggle />
+          <form action={logout} className="w-full">
+            <SubmitButton
+              label="Sign out"
+              pendingLabel="Signing out..."
+              baseClassName={cn(textButtonClass, 'w-full text-left justify-start')}
+            />
+          </form>
+        </div>
       </aside>
+
       <main className="w-full max-w-[1080px] px-[clamp(1.5rem,5vw,3.5rem)] py-8 lg:py-12">
         {children}
       </main>
