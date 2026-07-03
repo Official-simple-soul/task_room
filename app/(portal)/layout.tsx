@@ -46,7 +46,7 @@ export default async function PortalLayout({
             <SubmitButton
               label="Sign out"
               pendingLabel="Signing out..."
-              baseClassName={cn(textButtonClass, 'w-full text-left justify-start')}
+              baseClassName={cn(textButtonClass, 'w-full text-left justify-start text-red-500!')}
             />
           </form>
         </div>

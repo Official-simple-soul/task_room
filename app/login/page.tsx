@@ -7,7 +7,7 @@ export default function LoginPage() {
         <h1 className="my-7 mb-4 max-w-[590px] text-[clamp(2.7rem,5vw,4.25rem)] leading-[1.04] tracking-[-0.07em]">
           Focused work, accountable review.
         </h1>
-        <p className="max-w-[510px] text-[1.08rem] leading-[1.7] text-[#68766e]">
+        <p className="max-w-[510px] text-[1.08rem] leading-[1.7] text-[#68766e] dark:text-[#8da398]">
           Claim assigned tasks, submit completed work, and track approvals and
           earnings in one secure workspace.
         </p>

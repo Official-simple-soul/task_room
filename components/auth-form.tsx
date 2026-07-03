@@ -24,9 +24,9 @@ export function AuthForm() {
   >(register, {});
 
   return (
-    <div className="rounded-[18px] border border-[#e2e8e3] bg-white p-[2.2rem] shadow-[0_14px_42px_rgb(22_34_29_/_6%)]">
+    <div className="rounded-[18px] border border-[#e2e8e3] bg-white p-[2.2rem] shadow-[0_14px_42px_rgb(22_34_29_/_6%)] dark:border-[#1d2721] dark:bg-[#0f1512]/90 dark:backdrop-blur-md dark:shadow-[0_14px_42px_rgba(0,0,0,0.3)]">
       <div
-        className="mb-8 flex border-b-2 border-[#e2e8e3]"
+        className="mb-8 flex border-b-2 border-[#e2e8e3] dark:border-[#1d2721]"
         role="tablist"
         aria-label="Authentication mode"
       >
@@ -36,8 +36,8 @@ export function AuthForm() {
           aria-selected={mode === 'login'}
           aria-controls="login-panel"
           className={cn(
-            'relative bottom-[-2px] flex-1 cursor-pointer border-0 border-b-[3px] border-transparent bg-transparent py-4 text-[0.95rem] font-semibold text-[#68766e] transition hover:text-[#16221d]',
-            mode === 'login' && 'border-b-[#11664b] text-[#11664b]',
+            'relative bottom-[-2px] flex-1 cursor-pointer border-0 border-b-[3px] border-transparent bg-transparent py-4 text-[0.95rem] font-semibold text-[#68766e] transition hover:text-[#16221d] dark:text-[#8da398] dark:hover:text-[#ecf2ee]',
+            mode === 'login' && 'border-b-[#11664b] text-[#11664b] dark:border-b-[#10b981] dark:text-[#10b981]',
           )}
           onClick={() => setMode('login')}
         >
@@ -49,8 +49,8 @@ export function AuthForm() {
           aria-selected={mode === 'register'}
           aria-controls="register-panel"
           className={cn(
-            'relative bottom-[-2px] flex-1 cursor-pointer border-0 border-b-[3px] border-transparent bg-transparent py-4 text-[0.95rem] font-semibold text-[#68766e] transition hover:text-[#16221d]',
-            mode === 'register' && 'border-b-[#11664b] text-[#11664b]',
+            'relative bottom-[-2px] flex-1 cursor-pointer border-0 border-b-[3px] border-transparent bg-transparent py-4 text-[0.95rem] font-semibold text-[#68766e] transition hover:text-[#16221d] dark:text-[#8da398] dark:hover:text-[#ecf2ee]',
+            mode === 'register' && 'border-b-[#11664b] text-[#11664b] dark:border-b-[#10b981] dark:text-[#10b981]',
           )}
           onClick={() => setMode('register')}
         >
@@ -85,7 +85,7 @@ export function AuthForm() {
           <div className="-mt-2 flex justify-end">
             <Link
               href="/forgot-password"
-              className="text-[0.86rem] font-semibold text-[#11664b] hover:underline"
+              className="text-[0.86rem] font-semibold text-[#11664b] hover:underline dark:text-[#10b981]"
             >
               Forgot password?
             </Link>
@@ -138,7 +138,7 @@ export function AuthForm() {
         </form>
       )}
       {showDevCredentials && (
-        <p className="mt-7 border-t border-[#e2e8e3] pt-[1.4rem] text-[0.85rem] leading-[1.8] text-[#68766e]">
+        <p className="mt-7 border-t border-[#e2e8e3] pt-[1.4rem] text-[0.85rem] leading-[1.8] text-[#68766e] dark:border-[#1d2721] dark:text-[#8da398]">
           Local admin: <strong>admin@taskroom.local</strong> /{' '}
           <strong>Admin123!</strong>
           <br />

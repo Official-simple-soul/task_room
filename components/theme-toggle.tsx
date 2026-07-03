@@ -38,7 +38,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggleTheme}
-      className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[#d4ded8] bg-white px-4 py-2.5 text-[0.92rem] font-semibold text-[#11664b] shadow-sm transition-all duration-300 hover:-translate-y-px hover:border-[#98b8a8] hover:bg-[#f6fbf7] active:translate-y-0 dark:border-[#222c26] dark:bg-[#131b17] dark:text-[#ecf2ee] dark:hover:bg-[#1a2520] dark:hover:border-[#2e3d34] dark:hover:text-[#10b981] dark:shadow-none"
+      className="inline-flex w-full cursor-pointer items-center justify-between gap-3 rounded-xl border border-[#d4ded8] bg-white px-4 py-2.5 text-[0.92rem] font-semibold text-[#11664b] shadow-sm transition-all duration-300 hover:-translate-y-px hover:border-[#98b8a8] hover:bg-[#f6fbf7] active:translate-y-0 dark:border-[#222c26] dark:bg-[#131b17] dark:text-[#ecf2ee] dark:hover:bg-[#1a2520] dark:hover:border-[#2e3d34] dark:hover:text-[#10b981] dark:shadow-none"
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       <span className="flex items-center gap-2.5">
@@ -48,9 +48,6 @@ export function ThemeToggle() {
           <MoonIcon className="size-4.5 text-indigo-600 transition-transform duration-500 hover:-rotate-12" />
         )}
         <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-      </span>
-      <span className="text-[0.72rem] font-bold uppercase tracking-wider text-[#68766e] dark:text-[#8da398]">
-        {theme}
       </span>
     </button>
   );
