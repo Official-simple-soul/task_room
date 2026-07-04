@@ -77,12 +77,12 @@ export function PaymentForm({
       </label>
       <label className={labelClass}>
         Status
-        <select className={cn(inputClass, 'dark:bg-[#131b17]')} name="status" defaultValue="paid">
-          <option value="paid" className="dark:bg-[#131b17]">
-            Paid
-          </option>
+        <select className={cn(inputClass, 'dark:bg-[#131b17]')} name="status" defaultValue="due">
           <option value="due" className="dark:bg-[#131b17]">
             Due
+          </option>
+          <option value="paid" className="dark:bg-[#131b17]">
+            Paid
           </option>
         </select>
       </label>
