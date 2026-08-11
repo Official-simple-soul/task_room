@@ -6,6 +6,10 @@ import { z } from 'zod';
 import { requireProfile } from '@/lib/auth';
 import { slugifyProjectName } from '@/lib/projects';
 
+const deleteProjectSchema = z.object({
+  project_id: z.uuid(),
+});
+
 const projectSchema = z.object({
   name: z.string().trim().min(2).max(120),
   slug: z.string().trim().max(120).optional(),
@@ -192,4 +196,33 @@ export async function updateProject(projectId: string, formData: FormData) {
   revalidatePath('/tasks/assign');
   revalidatePath('/users');
   notice(path, 'Project updated successfully.');
+}
+
+export async function deleteProject(formData: FormData) {
+  const { supabase } = await requireProfile('admin');
+  const parsed = deleteProjectSchema.safeParse(Object.fromEntries(formData));
+  const path = '/projects';
+
+  if (!parsed.success) notice(path, 'Select a valid project to delete.', true);
+
+  const { error } = await supabase
+    .from('projects')
+    .delete()
+    .eq('id', parsed.data.project_id);
+
+  if (error) {
+    if (error.code === '23503') {
+      notice(
+        path,
+        'This project still has tasks assigned to it. Reassign or delete those tasks first.',
+        true,
+      );
+    }
+    notice(path, error.message, true);
+  }
+
+  revalidatePath('/projects');
+  revalidatePath('/tasks');
+  revalidatePath('/tasks/assign');
+  notice(path, 'Project deleted successfully.');
 }

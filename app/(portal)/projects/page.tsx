@@ -1,4 +1,4 @@
-import { createProject, updateProject } from '@/app/actions/projects';
+import { createProject, deleteProject, updateProject } from '@/app/actions/projects';
 import { ClipboardIcon, EditIcon, PlusIcon } from '@/components/icons';
 import { Message } from '@/components/message';
 import { PageHeader } from '@/components/page-header';
@@ -7,6 +7,7 @@ import { SubmitButton } from '@/components/submit-button';
 import { requireProfile } from '@/lib/auth';
 import { bucketFeeDollars, bucketLabel, sortProjectBuckets } from '@/lib/projects';
 import {
+  dangerButtonClass,
   fieldGridClass,
   inputClass,
   labelClass,
@@ -138,6 +139,27 @@ export default async function ProjectsPage({
                     </p>
                   ) : null}
                 </div>
+                <details className="relative">
+                  <summary className="cursor-pointer list-none text-[0.9rem] font-semibold text-[#ae3939] dark:text-red-400 [&::-webkit-details-marker]:hidden">
+                    Delete
+                  </summary>
+                  <div className="absolute right-0 z-20 mt-2 w-[280px] rounded-2xl border border-[#f2c9c9] bg-white p-4 text-left shadow-[0_18px_45px_rgba(22,34,29,0.14)] dark:border-[#ef4444]/30 dark:bg-[#131b17] dark:shadow-none">
+                    <p className="m-0 text-[0.88rem] leading-5 text-[#5e4826] dark:text-amber-200">
+                      Delete {project.name} and its payment buckets. Projects
+                      with existing tasks cannot be deleted. This cannot be
+                      undone.
+                    </p>
+                    <form action={deleteProject} className="mt-3">
+                      <input type="hidden" name="project_id" value={project.id} />
+                      <SubmitButton
+                        label="Confirm delete"
+                        pendingLabel="Deleting..."
+                        className="w-full"
+                        baseClassName={dangerButtonClass}
+                      />
+                    </form>
+                  </div>
+                </details>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-5">
                 {sortProjectBuckets(project.project_task_buckets).map((bucket) => (
